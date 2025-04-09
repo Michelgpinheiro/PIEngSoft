@@ -1,0 +1,347 @@
+@charset "UTF-8";
+
+* {
+
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+header {
+    background-color: #d9d9d9;
+    display: flex;
+    padding: 20px;
+    padding-left: 40px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+}
+
+.selected-page {
+    background-image: linear-gradient(to right, transparent, white, transparent);    
+}
+
+.header-container {
+    display: flex;
+    width: 100%;
+    height: 40px;
+    justify-content: space-between;
+}
+
+.header-container form {
+    display: flex;
+    border-radius: 0px 10px 10px 0px;
+}
+
+.barra-busca {
+    display: flex;
+}
+
+.barra-busca input {
+    width: 300px;
+    border: none;
+    border-left: 2px solid grey;
+}
+
+.barra-busca select {
+    border-radius: 10px 0px 0px 10px;
+    border: none;
+}
+
+.barra-busca button {
+    border-radius: 10px;
+    padding: 0px 10px;
+    border: none;
+    background-color: black;
+    color: white;
+}
+
+.barra-busca button:hover {
+    background-color: rgb(112, 112, 112);
+    cursor: pointer;
+}
+
+.barra-busca button::before {
+    content: url('../svg/lupa.svg');
+    vertical-align: middle;
+}
+
+figure {
+    display: flex;
+    width: 200px;
+    gap: 10px;
+    align-items: center;
+    font-weight: bold;
+}
+
+img {
+    height: 50px;
+}
+
+form {
+    background-color: white;
+}
+
+.nav-movel {
+    background-color: gray;
+    padding-top: 50px;
+    text-align: center;
+    border-radius: 0px 10px 10px 0px;
+    position: fixed;
+}
+
+.nav-estatica {
+    background-color: gray;
+    padding-top: 50px;
+    text-align: center;
+    border-radius: 0px 10px 10px 0px;
+}
+
+.nav-estatica a {
+    color: transparent;
+}
+
+nav a {
+    color: black;
+    text-decoration: none;
+    font-weight: bold;
+    line-height: 2.5;
+    padding: 10px 50px;
+}
+
+nav a:hover {
+    background-image: linear-gradient(to right, transparent, white, transparent);
+}
+
+main {
+    display: flex;
+    height: auto;
+    margin-top: 80px;
+}
+
+.main-content {
+    width: 100%;
+}
+
+.main-content img {
+    width: 100%;
+    height: 80%;
+}
+
+.imagens {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.imagem-principal {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid black;
+    width: 25vw;
+    height: 40vh;
+    background-color: lightgray;
+    border-radius: 0px 0px 10px 10px;
+}
+
+.imagem-principal img {
+    border-bottom: 1px solid black;
+}
+
+.imagens-secundarias {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.img-sec-1, .img-sec-2 {
+    width: 20vw;
+}
+
+.img-sec-1 img, .img-sec-2 img {
+    width: 60%;
+    height: 18vh;
+    border: 1px solid black;
+    padding: 10px;
+}
+
+.produto-info {
+    display: flex;
+    gap: 20px;
+    width: 80%;
+    margin: 20px auto;
+    justify-content: center;
+}
+
+.descricao nav, .descricao .inf{
+    margin-left: 20px;
+}
+
+.praca-1 {
+    border: 1px solid black;
+    width: 15vw;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.praca-1 h3 {
+    border-bottom: 1px solid black;
+    background-color: lightgray;
+    text-align: center;
+    padding: 10px;
+}
+
+.praca-info-row {
+    height: 1px;
+    background-color: black;
+}
+
+.praca-1-info2 {
+    background-color: lightgray;
+}
+
+.praca-inicio-fim, .praca-1-info2 {
+    padding: 5px;
+}
+
+.praca-2 {
+    margin-top: 10px;
+}
+
+.dar-lance {
+    display: flex;
+    gap: 20px;
+}
+
+.dar-lance .voltar {
+    color: white;
+}
+
+.dar-lance a {
+    display: block;
+    font-weight: bold;
+    text-decoration: none;
+    margin-top: 30px;
+    background-color: rgb(158, 158, 158);
+    width: fit-content;
+    padding: 10px 30px;
+    color: black;
+    border-radius: 5px;
+}
+
+.dar-lance a:hover {
+    filter: brightness(0.9);
+}
+
+.descricao li {
+    margin: 5px;
+    font-weight: bold;
+}
+
+.pracas span, .descricao span {
+    font-weight: bold;
+}
+
+
+
+.valor-contato {
+    display: flex;
+    gap: 10px;
+}
+
+.popup-container {
+    display: none;
+    position: absolute;
+    bottom: -70px;
+    left: 290px;
+    background-color: #b7a9a9;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);*/
+    padding: 20px;
+    z-index: 200;
+    width: 300px;
+}
+
+.popup-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.popup-content label {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.popup-content input,
+.popup-content textarea {
+    margin-bottom: 10px;
+    padding: 8px;
+    width: 100%;
+    max-width: 300px;
+    border-radius: 10px;
+    border: none;
+}
+
+.popup-content .inputs-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.popup-content .inputs-row input {
+    flex: 1;
+    max-width: calc(50% - 5px); /* Para que cada input ocupe metade da linha */
+}
+
+.popup-content textarea {
+    width: 100%;
+    max-width: 100%;
+}
+
+.popup-content button {
+    padding: 8px 16px;
+    background-color: white;
+    color: black;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.popup-content button:hover {
+    background-color: rgb(219, 219, 219);
+}
+
+.close-popup {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+    cursor: pointer;
+}
+
+.close-popup:hover {
+    
+}
+
+.perfil-configs p {
+    font-size: 16px;
+}
+
+select:hover {
+    filter: brightness(0.95);
+    cursor: pointer;
+}
