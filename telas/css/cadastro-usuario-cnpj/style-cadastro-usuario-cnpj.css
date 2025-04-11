@@ -16,14 +16,16 @@ body {
 }
 
 .banner-esquerdo {
-    background-color: lightgray;
+    background-color: #b2b2df;
     height: 100vh;
     width: 30%;
+    box-shadow: 18px 0px 0px rgb(228, 228, 228);
 }
 
 .banner-esquerdo h1 {
     text-align: center;
     padding-top: 70px;
+    font-size: 2.1em;
 }
 
 .secao-principal {
@@ -32,10 +34,11 @@ body {
 }
 
 .formulario {
-    background-color: #D3D3D3;
+    background-color: #d4d4ff;
     width: 60vw;
     border-radius: 10px;
-    border: 2px solid black;
+    border: 2px solid #757592;
+    box-shadow: 10px 10px 3px lightgray;
 }
 
 form {
@@ -57,7 +60,7 @@ h2 {
     border: 1px solid black;
     border-radius: 10px 10px 0px 0px;
     padding: 10px 20px;
-    border-bottom: 1px solid #D3D3D3;
+    border-bottom: 1px solid #d4d4ff;
     margin-bottom: -1px;
     font-weight: bold;
     text-decoration: none;
@@ -69,7 +72,7 @@ h2 {
 }
 
 .fisica:hover {
-    background-color: grey;
+    background-color: #b2b2df;
     color: white;
 }
 
@@ -236,9 +239,26 @@ input {
     color: black;
     font-size: 16px;
     border-radius: 10px;
-    padding: 5px 12px;
+    padding: 8px 12px;
+}
+
+.avancar-cancelar button {
+    background-color: #62e428;
+}
+
+.avancar-cancelar a {
+    background-color: #e45858;
 }
 
 .avancar-cancelar button:hover {
     cursor: pointer;
+}
+
+label {
+    font-weight: bold;
+}
+
+.salvar-cancelar button:hover, .salvar-cancelar a:hover {
+    cursor: pointer;
+    filter: brightness(0.95);
 }

@@ -19,8 +19,8 @@ main {
     display: flex;
     width: 90%;
     height: 100vh;
-    border: 1px solid grey;    
-    box-shadow: 18px 0px 0px #f7f7f7;
+    border: 1px solid #6246EA;    
+    box-shadow: 18px 0px 0px #e6e6e6;
 
 }
 
@@ -41,9 +41,9 @@ a:hover {
 .section-titulo {
 
     width: 50%;
-    border-right: 1px solid grey;   
+    border-right: 1px solid #6246EA;   
     padding: 10px;
-    background-color: #DDD5D5;
+    background-color: #B2B2DF;
     color: white;
 
 }
@@ -58,11 +58,12 @@ a:hover {
 
 .section-titulo h1 {
 
-    font-size: 2em;
+    font-size: 2.4em;
     text-align: center;
     margin-top: 120px;
     margin-left: 70px;
     line-height: 0.75;
+    color: black;
 
 }
 
@@ -84,13 +85,16 @@ a:hover {
 
     padding: 15px;
     font-size: 16px;
-
+    border-color: #6246EA;
+    border-style: solid;
+    border-width: 1px;
 }
 
 .esqueceu-senha {
 
    text-align: right;
     margin: 30px 0px;
+    color: #6246EA;
 
 }
 
@@ -106,8 +110,8 @@ a:hover {
 .button-entrar button {
 
     padding: 10px;
-    background-color: #857373;
-    border: 1px solid #685a5a;
+    background-color: #6246EA;
+    border: 1px solid #4733ac;
     color: white;
     font-size: 20px;
     letter-spacing: 1px;
@@ -117,6 +121,7 @@ a:hover {
 .button-entrar button:hover {
 
     cursor: pointer;
+    filter: brightness(0.90);
 
 }
 
@@ -124,6 +129,7 @@ a:hover {
 
     text-align: center;
     margin-top: 30px;
+    color: #6246EA;
 
 }
 

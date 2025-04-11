@@ -35,7 +35,7 @@
                     </div>
                     <div class="imagem-perfil">
                         <img src="imagens/Greek_uc_pi.svg" alt="">
-                        <p style="text-align: center;">Imagem de perfil</p>
+                        <p style="text-align: center; font-weight:bold;">Imagem de perfil</p>
                     </div>
                 </div>
 

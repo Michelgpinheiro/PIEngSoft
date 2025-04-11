@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solicitações de administrador</title>
-    <link rel="stylesheet" href="css/tela-solicitacao-adm/-style-tela-solicitacao-adm.css">
+    <link rel="stylesheet" href="css/tela-solicitacao-adm/style-tela-solicitacao-adm.css">
 </head>
 <body>
     <header>
@@ -12,7 +12,7 @@
             <h1>Leilão</h1>
             <div class="barra-busca">
                 <select name="categorias" id="categorias">
-                    <option value="valor1" selected disabled>categorias</option>
+                    <option value="valor0" selected disabled>Categorias</option>
                     <option value="valor1">Eletrônicos</option>
                     <option value="valor2">Veículos</option>
                     <option value="valor3">Antiguidades</option>
@@ -21,13 +21,13 @@
                     <option value="valor6">Outros</option>
                 </select>
                 <form style="border-radius: 0px 10px 10px 0px;" action="">
-                    <input style="border-radius: 0px;" type="text" name="buscar" id="buscar">
+                    <input style="border-radius: 0px; text-indent: 4px;" type="text" name="buscar" id="buscar" placeholder="Pesquisar...">
                     <button type="submit"></button>
                 </form>
             </div>
             <figure class="perfil-configs">
                 <p>Fulano de Tal</p>
-                <img src="imagens/profile_user_account_icon_190938.webp" alt="">
+                <img src="https://www.cnnbrasil.com.br/wp-content/uploads/sites/12/2023/03/150313105721-pi-day-graphic.jpg?w=1115" alt="">
             </figure>
         </div>
     </header>
@@ -41,6 +41,8 @@
                 <li><a class="selected-page" style="font-size: 13px;">Solicitações</a></li>
                 <li><a href="contate-nos.php" style="font-size: 13px;">Contate-nos</a></li>
                 <li><a href="sobre-nos.php">Sobre nós</a></li>
+                <li class="epc"></li>
+                <li><a href="login.php" class="sair">Sair</a></li>
             </ul>
         </nav>
         <nav class="nav-estatica">
@@ -67,7 +69,7 @@
                     <div class="user-card">
                         <div class="card-start">
                             <figure class="perfil-configs user-img">
-                                <img src="imagens/profile_user_account_icon_190938.webp" alt="">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Capital_Greek_letter_qoppa.svg/1200px-Capital_Greek_letter_qoppa.svg.png" alt="">
                             </figure>
                             <p class="nome">Fulano de Tal</p>
                             <p class="id">Id: 1</p>
@@ -91,10 +93,10 @@
                     <div class="user-card">
                         <div class="card-start">
                             <figure class="perfil-configs user-img">
-                                <img src="imagens/profile_user_account_icon_190938.webp" alt="">
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfDumRHWwwq4KuO37B7B4sGKOGgMe4pvDq_Q&s" alt="">
                             </figure>
                             <p class="nome">Fulano de Tal</p>
-                            <p class="id">Id: 1</p>
+                            <p class="id">Id: 2</p>
                         </div>
                         <div class="card-end">  
                             <div style="visibility: hidden;" class="pause-view">
@@ -115,10 +117,10 @@
                     <div class="user-card">
                         <div class="card-start">
                             <figure class="perfil-configs user-img">
-                                <img src="imagens/profile_user_account_icon_190938.webp" alt="">
+                                <img src="https://img.freepik.com/vetores-premium/simbolo-do-alfabeto-grego-theta_875240-773.jpg" alt="">
                             </figure>
                             <p class="nome">Fulano de Tal</p>
-                            <p class="id">Id: 1</p>
+                            <p class="id">Id: 3</p>
                         </div>
                         <div class="card-end">  
                             <div style="visibility: hidden;" class="pause-view">
@@ -139,10 +141,10 @@
                     <div class="user-card">
                         <div class="card-start">
                             <figure class="perfil-configs user-img">
-                                <img src="imagens/profile_user_account_icon_190938.webp" alt="">
+                                <img src="https://img.freepik.com/vetores-premium/simbolo-do-alfabeto-grego-rho_875240-895.jpg" alt="">
                             </figure>
                             <p class="nome">Fulano de Tal</p>
-                            <p class="id">Id: 1</p>
+                            <p class="id">Id: 4</p>
                         </div>
                         <div class="card-end">  
                             <div style="visibility: hidden;" class="pause-view">
@@ -163,10 +165,10 @@
                     <div class="user-card">
                         <div class="card-start">
                             <figure class="perfil-configs user-img">
-                                <img src="imagens/profile_user_account_icon_190938.webp" alt="">
+                                <img src="https://informaticacero.com/wp-content/uploads/2020/11/letra-p-mayuscula.png" alt="">
                             </figure>
                             <p class="nome">Fulano de Tal</p>
-                            <p class="id">Id: 1</p>
+                            <p class="id">Id: 5</p>
                         </div>
                         <div class="card-end">  
                             <div style="visibility: hidden;" class="pause-view">
@@ -187,10 +189,10 @@
                     <div class="user-card">
                         <div class="card-start">
                             <figure class="perfil-configs user-img">
-                                <img src="imagens/profile_user_account_icon_190938.webp" alt="">
+                                <img src="https://andrebona.com.br/wp-content/uploads/2019/02/alpha.png" alt="">
                             </figure>
                             <p class="nome">Fulano de Tal</p>
-                            <p class="id">Id: 1</p>
+                            <p class="id">Id: 6</p>
                         </div>
                         <div class="card-end">  
                             <div style="visibility: hidden;" class="pause-view">

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contate-nos</title>
-    <link rel="stylesheet" href="css/contate-nos/-style-contate-nos.css">
+    <link rel="stylesheet" href="css/contate-nos/style-contate-nos.css">
 </head>
 <body>
     <header>
@@ -12,7 +12,7 @@
             <h1>Leilão</h1>
             <div class="barra-busca">
                 <select name="categorias" id="categorias">
-                    <option value="valor1" selected disabled>categorias</option>
+                    <option value="valor0" selected disabled>Categorias</option>
                     <option value="valor1">Eletrônicos</option>
                     <option value="valor2">Veículos</option>
                     <option value="valor3">Antiguidades</option>
@@ -21,13 +21,13 @@
                     <option value="valor6">Outros</option>
                 </select>
                 <form action="">
-                    <input type="text" name="buscar" id="buscar">
+                    <input style="text-indent: 10px;" type="text" name="buscar" id="buscar" placeholder="Pesquisar...">
                     <button type="submit"></button>
                 </form>
             </div>
             <figure class="perfil-configs">
                 <p>Fulano de Tal</p>
-                <img src="imagens/profile_user_account_icon_190938.webp" alt="">
+                <img src="https://www.cnnbrasil.com.br/wp-content/uploads/sites/12/2023/03/150313105721-pi-day-graphic.jpg?w=1115" alt="">
             </figure>
         </div>
     </header>
@@ -37,8 +37,10 @@
                 <li><a href="tela-inicial.php">Início</a></li>
                 <li><a href="categorias.php">Categorias</a></li>
                 <li><a href="tela-produtos.php">Produtos</a></li>
-                <li><a class="selected-page" style="font-size: 13px;">Contrate-nos</a></li>
+                <li><a class="selected-page" style="font-size: 13px;">Contate-nos</a></li>
                 <li><a href="sobre-nos.php">Sobre nós</a></li>
+                <li class="epc"></li>
+                <li><a href="login.php" class="sair">Sair</a></li>
             </ul>
         </nav>
         <nav class="nav-estatica">

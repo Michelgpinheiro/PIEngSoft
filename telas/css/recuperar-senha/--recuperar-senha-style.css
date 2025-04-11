@@ -23,9 +23,26 @@ h1 {
 
 .redefinir-senha {
 
-    background-color: #d9d9d9;
+    background-color: #d4d4ff;
+    box-shadow: 10px 10px 2px lightgray;
     padding: 20px;
 
+}
+
+.login-voltar {
+    display: flex;
+    justify-content: right;
+}
+
+.voltar-login {
+    color: black;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.voltar-login:hover {
+    color: darkred;
 }
 
 main {
@@ -57,9 +74,10 @@ main {
 
     padding: 14px;
     width: 100%;
-    background-color: #d9d9d9;
+    background-color: white;
     border: 1px solid black;
     font-size: 16px;
+    border: 1px solid #6246ea;
 
 }
 
@@ -75,7 +93,8 @@ main {
     width: 65%;
     margin: 30px auto;
     padding: 10px;
-    background-color: #907171;
+    background-color: #6246ea;
+    color: white;
     border: none;
     font-weight: bold;
     font-size: 20px;
@@ -85,5 +104,6 @@ main {
 .div-button button:hover {
 
     cursor: pointer;
+    filter: brightness(0.9);
 
 }

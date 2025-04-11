@@ -14,7 +14,7 @@ body {
 
 
 header {
-    background-color: #d9d9d9;
+    background-color: #5757ff;
     display: flex;
     padding: 20px;
     padding-left: 40px;
@@ -25,8 +25,13 @@ header {
     z-index: 100;
 }
 
+
 .selected-page {
     background-image: linear-gradient(to right, transparent, white, transparent);    
+}
+
+.selected-page:hover {
+    cursor: auto;
 }
 
 .header-container {
@@ -91,7 +96,7 @@ form {
 }
 
 .nav-movel {
-    background-color: gray;
+    background-color: #d1d1e9;
     padding-top: 50px;
     text-align: center;
     border-radius: 0px 10px 10px 0px;
@@ -99,10 +104,11 @@ form {
 }
 
 .nav-estatica {
-    background-color: gray;
+    background-color: #d1d1e9;
     padding-top: 50px;
     text-align: center;
     border-radius: 0px 10px 10px 0px;
+    box-shadow: 10px 0px 2px rgb(238, 238, 238);
 }
 
 .nav-estatica a {
@@ -119,6 +125,7 @@ nav a {
 
 nav a:hover {
     background-image: linear-gradient(to right, transparent, white, transparent);
+    filter: brightness(1);
 }
 
 main {
@@ -215,21 +222,24 @@ p {
     
     margin: 20px;
     text-align: center;
+    color: #5757ff;
 
 }
 
 .categoria-row .row {
     height: 1px;
     width: 100%;
-    background-image: linear-gradient(to right, transparent, black, transparent);
+    background-image: linear-gradient(to right, transparent, #5757ff, transparent);
 }
 
 .iniciando-leilao {
-    background-color: lightgray;
+    background-color: #d1d1e9;
+    border: 1px solid #5757ff;
     width: fit-content;
     margin: 20px auto;
     padding: 20px;
     border-radius: 10px;
+    box-shadow: 10px 10px 2px rgb(238, 238, 238);
 }
 
 .main-div-1, .main-div-2 {
@@ -258,7 +268,9 @@ p {
 }
 
 textarea {
-    padding: 50px 114px;
+    height: 130px;
+    padding: 10px;
+    width: 30vw;
     border: none;
     border-radius: 10px;
 }
@@ -322,6 +334,15 @@ textarea {
     left: 40px;
 }
 
+.aprovar-recusar button, a {
+    font-weight: bold;
+}
+
+.aprovar-recusar button:hover, a:hover {
+    filter: brightness(0.9);
+    cursor: pointer;
+}
+
 .aprovar-recusar button, .aprovar-recusar a {
     background-color: white;
     border: none;
@@ -330,25 +351,24 @@ textarea {
     color: black;
     padding: 10px 15px;
     border-radius: 10px;
-    font-weight: bold;
 }
 
-
-.aprovar-recusar button:hover {
-    cursor: pointer;
+.aprovar-recusar button {
+    background-color:  #61e458;
 }
 
-
+.aprovar-recusar a {
+    background-color: #e45858;
+}
 
 .popup-container {
     display: none;
     position: absolute;
-    bottom: -350px;
+    bottom: -150px;
     left: 65vw;
-    background-color: #b7a9a9;
-    border: 1px solid #ccc;
+    background-color: #d1d1e9;
+    border: 1px solid #5757ff;
     border-radius: 10px;
-    /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);*/
     padding: 20px;
     z-index: 200;
     width: 300px;
@@ -383,7 +403,7 @@ textarea {
 
 .popup-content .inputs-row input {
     flex: 1;
-    max-width: calc(50% - 5px); /* Para que cada input ocupe metade da linha */
+    max-width: calc(50% - 5px); 
 }
 
 .popup-content textarea {
@@ -393,7 +413,7 @@ textarea {
 
 .popup-content button {
     padding: 8px 16px;
-    background-color: white;
+    background-color: #61e458;
     color: black;
     font-weight: bold;
     border: none;
@@ -402,7 +422,7 @@ textarea {
 }
 
 .popup-content button:hover {
-    background-color: rgb(219, 219, 219);
+    filter: brightness(0.90);
 }
 
 .close-popup {
@@ -416,5 +436,40 @@ textarea {
 }
 
 .close-popup:hover {
-    
+    color: darkred;
+}
+
+.perfil-configs p {
+    font-size: 16px;
+}
+
+select:hover {
+    filter: brightness(0.95);
+    cursor: pointer;
+}
+
+.epc {
+    height: 20vh;
+}
+
+.sair:hover {
+    background-image: linear-gradient(to right, transparent, rgba(255, 0, 0, 0.347), transparent);
+    color: white;
+}
+
+.perfil-configs p {
+    font-size: 16px;
+    color: white;
+    text-shadow: 0px 0px 2px black;
+}
+
+.perfil-configs img {
+    border-radius: 50%;
+    width: 50px;
+    border: 3px double white;
+}
+
+.header-container h1 {
+    color: white;
+    text-shadow: 0px 0px 3px black;
 }
