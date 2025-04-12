@@ -243,6 +243,7 @@ p {
 .informacoes textarea {
     height: 120px;
     width: 33vw;
+    padding: 10px;
     border: none;
     border-radius: 10px;
 }
@@ -274,4 +275,19 @@ p {
     position: relative;
     bottom: 20px;
 }
+
+.perfil-configs p {
+    font-size: 16px;
+}
+
+select:hover {
+    filter: brightness(0.95);
+    cursor: pointer;
+}
+
+.salvar-cancelar button:hover, .salvar-cancelar a:hover {
+    cursor: pointer;
+    filter: brightness(0.95);
+}
+
 

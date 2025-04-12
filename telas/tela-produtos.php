@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8">d
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Produtos</title>
-    <link rel="stylesheet" href="css/tela-produtos/style-tela-produtos.css">
+    <link rel="stylesheet" href="css/tela-produtos/--style-tela-produtos.css">
 </head>
 <body>
     <header>
@@ -12,7 +12,7 @@
             <h1>Leilão</h1>
             <div class="barra-busca">
                 <select name="categorias" id="categorias">
-                    <option value="valor1" selected disabled>categorias</option>
+                    <option value="valor0" selected disabled>Categorias</option>
                     <option value="valor1">Eletrônicos</option>
                     <option value="valor2">Veículos</option>
                     <option value="valor3">Antiguidades</option>
@@ -21,13 +21,13 @@
                     <option value="valor6">Outros</option>
                 </select>
                 <form action="">
-                    <input type="text" name="buscar" id="buscar">
+                    <input style="text-indent: 10px;" type="text" name="buscar" id="buscar" placeholder="Pesquisar...">
                     <button type="submit"></button>
                 </form>
             </div>
             <figure class="perfil-configs">
                 <p>Fulano de Tal</p>
-                <img src="imagens/profile_user_account_icon_190938.webp" alt="">
+                <img src="https://www.cnnbrasil.com.br/wp-content/uploads/sites/12/2023/03/150313105721-pi-day-graphic.jpg?w=1115" alt="">
             </figure>
         </div>
     </header>
@@ -37,8 +37,10 @@
                 <li><a href="tela-inicial.php">Início</a></li>
                 <li><a href="categorias.php">Categorias</a></li>
                 <li><a class="selected-page">Produtos</a></li>
-                <li><a href="contate-nos.php" style="font-size: 13px;">Contrate-nos</a></li>
+                <li><a href="contate-nos.php" style="font-size: 13px;">Contate-nos</a></li>
                 <li><a href="sobre-nos.php">Sobre nós</a></li>
+                <li class="epc"></li>
+                <li><a href="login.php" class="sair">Sair</a></li>
             </ul>
         </nav>
         <nav class="nav-estatica">
@@ -59,24 +61,24 @@
                 <div class="card">
                     <div class="inner-card">
                         <figure>
-                            <img src="https://www.meumoveldemadeira.com.br/cdn/shop/files/G0A4130_600x400.jpg?v=1734975217" alt="">
+                            <img src="https://cabralmotor.fbitsstatic.net/img/p/cg-160-titan-70286/257551-6.jpg?w=1000&h=1000&v=202504071324&qs=ignore" alt="">
                         </figure>
-                        <h3>Mesa de madeira</h3>
+                        <h3>Honda GC 160 Titan</h3>
                         <div class="card-informations-row"></div>
-                        <h4>Valor: R$1600,00</h4>
+                        <h4>Valor: R$14.500,00</h4>
                     </div>
-                    <div class="dar-lance">
-                        <a style="color: black;" href="tela-pagamento.php">Leiloar</a>
+                    <div class="dar-lance leiloar">
+                        <a href="tela-pagamento.php">Leiloar</a>
                     </div>
                 </div>
                 <div class="card">
                     <div class="inner-card">
                         <figure>
-                            <img src="https://www.meumoveldemadeira.com.br/cdn/shop/files/G0A4130_600x400.jpg?v=1734975217" alt="">
+                            <img src="https://images.tcdn.com.br/img/img_prod/1124863/controle_original_ps5_sem_fio_dualsense_sony_starlight_blue_12972_1_9293d13567c3479519bcb59e9bfc673a.jpg" alt="">
                         </figure>
-                        <h3>Mesa de madeira</h3>
+                        <h3>Dual Sense</h3>
                         <div class="card-informations-row"></div>
-                        <h4>Valor: R$1600,00</h4>
+                        <h4>Valor: R$350,00</h4>
                     </div>
                     <div class="dar-lance">
                         <a style="color: white;" href="tela-pagamento.php">Em Leilão</a>
@@ -85,13 +87,13 @@
                 <div class="card">
                     <div class="inner-card">
                         <figure>
-                            <img src="https://www.meumoveldemadeira.com.br/cdn/shop/files/G0A4130_600x400.jpg?v=1734975217" alt="">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTntDd8XR-7U4ox3JNkIgC5q12fE2D3cMyjPQ&s" alt="">
                         </figure>
-                        <h3>Mesa de madeira</h3>
+                        <h3>Taurus 92 9mm</h3>
                         <div class="card-informations-row"></div>
-                        <h4>Valor: R$1600,00</h4>
+                        <h4>Valor: R$2350,00</h4>
                     </div>
-                    <div class="dar-lance">
+                    <div class="dar-lance recusado">
                         <a style="color: white;" href="#" id="btn-dar-lance">Recusado</a>
                     </div>
 
@@ -108,14 +110,14 @@
                 <div class="card">
                     <div class="inner-card">
                         <figure>
-                            <img src="https://www.meumoveldemadeira.com.br/cdn/shop/files/G0A4130_600x400.jpg?v=1734975217" alt="">
+                            <img src="https://s2-autoesporte.glbimg.com/PhjGqvSsrjhXhcRaiQPVcGl-L1Y=/0x0:1980x1204/924x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_cf9d035bf26b4646b105bd958f32089d/internal_photos/bs/2024/w/r/ln4uNrTKiFAf9XmqHtaQ/fiat-titano-ambientadas-007.jpg" alt="">
                         </figure>
-                        <h3>Mesa de madeira</h3>
+                        <h3>Fiat Titano</h3>
                         <div class="card-informations-row"></div>
-                        <h4>Valor: R$1600,00</h4>
+                        <h4>Valor: R$213.000,00</h4>
                     </div>
-                    <div class="dar-lance">
-                        <a style="color: black;" id="btn-dar-lance2" href="#">Resultado</a>
+                    <div class="dar-lance resultado">
+                        <a id="btn-dar-lance2" href="#">Resultado</a>
                     </div>
 
                     <div class="popup-container popup-container-resultado" id="popup-lance2">
@@ -124,7 +126,7 @@
                             <div class="valor-contato">
                                 <div class="lance-valor">
                                     <label for="valor-lance">Valor</label>
-                                    <p>R$2500,00</p>
+                                    <p>R$213.000,00</p>
                                 </div>
                                 <div class="lance-contato">
                                     <label for="contato-lance">Contato</label>
@@ -139,14 +141,14 @@
                 <div class="card">
                     <div class="inner-card">
                         <figure>
-                            <img src="https://www.meumoveldemadeira.com.br/cdn/shop/files/G0A4130_600x400.jpg?v=1734975217" alt="">
+                            <img src="https://www.artesintonia.com.br/cdn/shop/files/ANN03-escultura-bronze-buda-bali-indonesia-importado-casa-budismo-decoracao-1-01.jpg?v=1708638636" alt="">
                         </figure>
-                        <h3>Mesa de madeira</h3>
+                        <h3 style="font-size: 14px;">Escultura Buldista de Bronze</h3>
                         <div class="card-informations-row"></div>
                         <h4>Valor: R$1600,00</h4>
                     </div>
-                    <div class="dar-lance">
-                        <a style="color: black;" href="tela-pagamento.php">Em análise</a>
+                    <div class="dar-lance em-analise">
+                        <a href="tela-pagamento.php">Em análise</a>
                     </div>
                 </div>
                 <div class="adicionar-produto">

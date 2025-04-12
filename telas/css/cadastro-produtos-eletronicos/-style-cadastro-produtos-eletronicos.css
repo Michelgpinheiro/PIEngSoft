@@ -14,7 +14,7 @@ body {
 
 
 header {
-    background-color: #d9d9d9;
+    background-color: #5757ff;
     display: flex;
     padding: 20px;
     padding-left: 40px;
@@ -91,7 +91,7 @@ form {
 }
 
 .nav-movel {
-    background-color: gray;
+    background-color: #d1d1e9;
     padding-top: 50px;
     text-align: center;
     border-radius: 0px 10px 10px 0px;
@@ -99,11 +99,12 @@ form {
 }
 
 .nav-estatica {
-    background-color: gray;
+    background-color: #d1d1e9;
     padding-top: 50px;
     text-align: center;
     border-radius: 0px 10px 10px 0px;
     height: auto;
+    box-shadow: 10px 0px 2px rgb(238, 238, 238);
 }
 
 .nav-estatica a {
@@ -141,10 +142,12 @@ p {
 }
 
 .cadastro-produtos {
-    background-color: lightgray;
+    background-color: #d1d1e9;
+    border: 1px solid #5757ff;
     border-radius: 15px;
     width: 75%;
     margin: 40px auto;
+    box-shadow: 8px 8px 3px rgb(238, 238, 238);
 }
 
 .cadastro-produtos h2 {
@@ -162,26 +165,12 @@ p {
     margin-bottom: -20px;
 }
 
-.selected-nav-produto:hover {
-    background-color: lightgray !important;
-}
 
-.cadastro-produtos nav a{
-    font-weight: bold;
-    border: 1px solid black;
-    padding: 10px;
-    border-radius: 10px 10px 0px 0px;
-}
-
-.cadastro-produtos nav a:hover {
-    background-image: linear-gradient(to right, transparent, transparent);
-    background-color: grey;
-}
 
 .nav-produtos-row {
     height: 1px;
     width: 100%;
-    background-color: black;
+    background-color: #5757ff;
     margin-top: -1px;
 }
 
@@ -248,6 +237,7 @@ p {
 .informacoes textarea {
     height: 120px;
     width: 33vw;
+    padding: 10px;
     border: none;
     border-radius: 10px;
 }
@@ -275,8 +265,71 @@ p {
     margin: 10px;
 }
 
+.salvar-cancelar a {
+    background-color: #e45858;
+}
+
 .salvar-cancelar button {
     position: relative;
     bottom: 20px;
+    background-color: #61e458;
 }
 
+.perfil-configs p {
+    font-size: 16px;
+}
+
+select:hover {
+    filter: brightness(0.95);
+    cursor: pointer;
+}
+
+.salvar-cancelar button:hover, .salvar-cancelar a:hover {
+    cursor: pointer;
+    filter: brightness(0.95);
+}
+
+.epc {
+    height: 30vh;
+}
+
+.sair:hover {
+    background-image: linear-gradient(to right, transparent, rgba(255, 0, 0, 0.347), transparent);
+    color: white;
+}
+
+.perfil-configs p {
+    font-size: 16px;
+    color: white;
+    text-shadow: 0px 0px 2px black;
+}
+
+.perfil-configs img {
+    border-radius: 50%;
+    width: 50px;
+    border: 3px double white;
+}
+
+.header-container h1 {
+    color: white;
+    text-shadow: 0px 0px 3px black;
+}
+
+.selected-nav-produto:hover {
+    background-color: #d1d1e9 !important;
+    color: #5757ff !important;
+}
+
+.cadastro-produtos nav a{
+    font-weight: bold;
+    border: 1px solid #5757ff;
+    padding: 10px;
+    border-radius: 10px 10px 0px 0px;
+    color: #5757ff;
+}
+
+.cadastro-produtos nav a:hover {
+    background-image: linear-gradient(to right, transparent, transparent);
+    background-color: #b2b2df;
+    color: white;
+}

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solicitação de administrador </title>
-    <link rel="stylesheet" href="css/solicitacao-adm/style-solicitacao-adm.css">
+    <link rel="stylesheet" href="css/solicitacao-adm/--style-solicitacao-adm.css">
 </head>
 <body>
     <header>
@@ -12,7 +12,7 @@
             <h1>Leilão</h1>
             <div class="barra-busca">
                 <select name="categorias" id="categorias">
-                    <option value="valor1" selected disabled>categorias</option>
+                    <option value="valor0" selected disabled>Categorias</option>
                     <option value="valor1">Eletrônicos</option>
                     <option value="valor2">Veículos</option>
                     <option value="valor3">Antiguidades</option>
@@ -21,13 +21,13 @@
                     <option value="valor6">Outros</option>
                 </select>
                 <form action="">
-                    <input type="text" name="buscar" id="buscar">
+                    <input style="text-indent: 10px;" type="text" name="buscar" id="buscar" placeholder="Pesquisar...">
                     <button type="submit"></button>
                 </form>
             </div>
             <figure class="perfil-configs">
                 <p>Fulano de Tal</p>
-                <img src="imagens/profile_user_account_icon_190938.webp" alt="">
+                <img src="https://www.cnnbrasil.com.br/wp-content/uploads/sites/12/2023/03/150313105721-pi-day-graphic.jpg?w=1115" alt="">
             </figure>
         </div>
     </header>
@@ -37,10 +37,12 @@
                 <li><a href="tela-inicial.php">Início</a></li>
                 <li><a href="categorias.php">Categorias</a></li>
                 <li><a href="tela-produtos.php">Produtos</a></li>
-                <li><a href="usuarios.php">Usuários</a></li>
+                <li><a href="listagem-usuarios-adm.php">Usuários</a></li>
                 <li><a class="selected-page" style="font-size: 13px;">Solicitações</a></li>
                 <li><a href="contate-nos.php" style="font-size: 13px;">Contate-nos</a></li>
                 <li><a href="sobre-nos.php">Sobre nós</a></li>
+                <li class="epc"></li>
+                <li><a href="login.php" class="sair">Sair</a></li>
             </ul>
         </nav>
         <nav class="nav-estatica">
@@ -70,18 +72,18 @@
                             <div class="imagens">
                                 <div class="layer-1">
                                     <figure>
-                                        <img src="https://images.tcdn.com.br/img/img_prod/1124863/controle_original_ps5_sem_fio_dualsense_sony_starlight_blue_12972_1_9293d13567c3479519bcb59e9bfc673a.jpg" alt="">
+                                        <img src="https://www.cnnbrasil.com.br/wp-content/uploads/sites/12/2023/04/230418093558-01-new-lincoln-nautilus-suv.webp?w=1024" alt="">
                                     </figure>
                                     <figure>
-                                        <img src="https://i.pinimg.com/736x/86/a6/c8/86a6c8fedfd94016dcddc0c72e52796b.jpg" alt="">
+                                        <img src="https://images.cars.com/cldstatic/wp-content/uploads/lincoln-nautilus-2024-05-exterior-rear-angle-red-scaled.jpg" alt="">
                                     </figure>
                                 </div>
                                 <div class="layer-2">
                                     <figure>
-                                        <img src="https://wallpapercave.com/wp/wp12709749.jpg" alt="">
+                                        <img src="https://www.edmunds.com/assets/m/cs/blteebe6f0d6ebd7869/6621fc35b8b5cee09edbf5a2/2024_lincoln_nautilus_front.jpg" alt="">
                                     </figure>
                                     <figure>
-                                        <img src="https://m.media-amazon.com/images/I/518tkiWGd0L._AC_SY350_.jpg" alt="">
+                                        <img src="https://www.cnnbrasil.com.br/wp-content/uploads/sites/12/2023/04/230418093843-03-new-lincoln-nautilus-suv.webp?w=1024" alt="">
                                     </figure>
                                 </div>
                             </div>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="css/login/-style-login.css">
+    <link rel="stylesheet" href="css/login/--style-login.css">
 </head>
 <body>
     <main>
@@ -13,7 +13,7 @@
         </section>
         <section class="section-login section">
             <div class="formulario">
-                <h2>Welcome back</h2>
+                <h2>Bem-vindo</h2>
                 <form action="" method="post">
                     <div class="inputs">
                         

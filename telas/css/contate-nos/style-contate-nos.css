@@ -14,7 +14,7 @@ body {
 
 
 header {
-    background-color: #d9d9d9;
+    background-color: #5757ff;
     display: flex;
     padding: 20px;
     padding-left: 40px;
@@ -91,7 +91,7 @@ form {
 }
 
 .nav-movel {
-    background-color: gray;
+    background-color: #d1d1e9;
     padding-top: 50px;
     text-align: center;
     border-radius: 0px 10px 10px 0px;
@@ -99,11 +99,12 @@ form {
 }
 
 .nav-estatica {
-    background-color: gray;
+    background-color: #d1d1e9;
     padding-top: 50px;
     text-align: center;
     border-radius: 0px 10px 10px 0px;
     height: 86.25vh;
+    box-shadow: 10px 0px 2px rgb(238, 238, 238);
 }
 
 .nav-estatica a {
@@ -142,10 +143,12 @@ p {
 }
 
 .entre-em-contato {
-    background-color: lightgray;
+    background-color: #d1d1e9;
+    border: 1px solid #5757ff;
     width: 70%;
     margin: auto;
     border-radius: 15px;
+    box-shadow: 8px 8px 3px rgb(238, 238, 238);
 }
 
 .entre-em-contato h2, .descricao-mensagem-enviar {
@@ -186,12 +189,47 @@ p {
     padding: 10px 20px;
     border-radius: 15px;
     border: none;
-    background-color: white;
+    background-color: #61e458;
     font-weight: bold;
 }
 
 .button button:hover {
     cursor: pointer;
+    filter: brightness(0.95);
 }
 
  
+.perfil-configs p {
+    font-size: 16px;
+}
+
+select:hover {
+    filter: brightness(0.95);
+    cursor: pointer;
+}
+
+.epc {
+    height: 30vh;
+}
+
+.sair:hover {
+    background-image: linear-gradient(to right, transparent, rgba(255, 0, 0, 0.347), transparent);
+    color: white;
+}
+
+.perfil-configs p {
+    font-size: 16px;
+    color: white;
+    text-shadow: 0px 0px 2px black;
+}
+
+.perfil-configs img {
+    border-radius: 50%;
+    width: 50px;
+    border: 3px double white;
+}
+
+.header-container h1 {
+    color: white;
+    text-shadow: 0px 0px 3px black;
+}

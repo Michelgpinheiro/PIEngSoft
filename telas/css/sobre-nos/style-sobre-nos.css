@@ -14,7 +14,7 @@ body {
 
 
 header {
-    background-color: #d9d9d9;
+    background-color: #5757ff;
     display: flex;
     padding: 20px;
     padding-left: 40px;
@@ -91,7 +91,7 @@ form {
 }
 
 .nav-movel {
-    background-color: gray;
+    background-color: #d1d1e9;
     padding-top: 50px;
     text-align: center;
     border-radius: 0px 10px 10px 0px;
@@ -99,11 +99,12 @@ form {
 }
 
 .nav-estatica {
-    background-color: gray;
+    background-color: #d1d1e9;
     padding-top: 50px;
     text-align: center;
     border-radius: 0px 10px 0px 0px;
     height: 86.25vh;
+    box-shadow: 10px 0px 2px rgb(238, 238, 238);
 }
 
 .nav-estatica a {
@@ -162,19 +163,19 @@ p {
 footer {
     display: flex;
     border-radius: 10px 10px 0px 0px;
-    background-color: darkgray;
+    background-color: #d4d4ff;
 }
 
 .espacar-header {
     margin-top: -3px;
     width: 183px;
-    background-color: grey;
+    background-color: #d1d1e9;
 }
 
 .inner-header {
     display: flex;
     justify-content: space-evenly;
-    background-color: darkgray;
+    background-color: #d4d4ff;
     width: 85%;
 }
 
@@ -213,10 +214,13 @@ footer {
     border: none;
     padding: 12px;
     border-radius: 10px;
+    font-weight: bold;
+    background-color: #61e458;
 }
 
 .mensagem-enviar button:hover {
     cursor: pointer;
+    filter: brightness(0.90);
 }
 
 .redes-socias {
@@ -240,4 +244,48 @@ footer {
 .redes a:hover {
     all: unset;
     cursor: pointer;
+}
+
+.redes img:hover {
+    background-image: linear-gradient(to right, transparent, #d1d1e9, transparent);
+    padding: 3px;
+}
+
+.perfil-configs p {
+    font-size: 16px;
+}
+
+select:hover {
+    filter: brightness(0.95);
+    cursor: pointer;
+}
+
+.epc {
+    height: 30vh;
+}
+
+.sair:hover {
+    background-image: linear-gradient(to right, transparent, rgba(255, 0, 0, 0.347), transparent);
+    color: white;
+}
+
+.perfil-configs p {
+    font-size: 16px;
+    color: white;
+    text-shadow: 0px 0px 2px black;
+}
+
+.perfil-configs img {
+    border-radius: 50%;
+    width: 50px;
+    border: 3px double white;
+}
+
+.header-container h1 {
+    color: white;
+    text-shadow: 0px 0px 3px black;
+}
+
+.objetivo::before {
+    content: url("imagens/info.svg");
 }

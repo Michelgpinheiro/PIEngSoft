@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pagamento</title>
-    <link rel="stylesheet" href="css/tela-pagamento/-style-tela-pagamento.css">
+    <link rel="stylesheet" href="css/tela-pagamento/style-tela-pagamento.css">
 </head>
 <body>
     <header>
@@ -12,7 +12,7 @@
             <h1>Leilão</h1>
             <div class="barra-busca">
                 <select name="categorias" id="categorias">
-                    <option value="valor1" selected disabled>categorias</option>
+                    <option value="valor0" selected disabled>Categorias</option>
                     <option value="valor1">Eletrônicos</option>
                     <option value="valor2">Veículos</option>
                     <option value="valor3">Antiguidades</option>
@@ -21,13 +21,13 @@
                     <option value="valor6">Outros</option>
                 </select>
                 <form action="">
-                    <input type="text" name="buscar" id="buscar">
+                    <input style="text-indent: 10px;" type="text" name="buscar" id="buscar" placeholder="Pesquisar...">
                     <button type="submit"></button>
                 </form>
             </div>
             <figure class="perfil-configs">
                 <p>Fulano de Tal</p>
-                <img src="imagens/profile_user_account_icon_190938.webp" alt="">
+                <img src="https://www.cnnbrasil.com.br/wp-content/uploads/sites/12/2023/03/150313105721-pi-day-graphic.jpg?w=1115" alt="">
             </figure>
         </div>
     </header>
@@ -39,6 +39,8 @@
                 <li><a href="tela-produtos.php">Produtos</a></li>
                 <li><a href="contate-nos.php" style="font-size: 13px;">Contate-nos</a></li>
                 <li><a href="sobre-nos.php">Sobre nós</a></li>
+                <li class="epc"></li>
+                <li><a href="login.php" class="sair">Sair</a></li>
             </ul>
         </nav>
         <nav class="nav-estatica">
@@ -51,17 +53,20 @@
             </ul>
         </nav>
         <section class="main-content">
+            <a href="tela-inicial.php" class="voltar">
+                <img src="https://cdn-icons-png.flaticon.com/512/109/109618.png" alt="">
+            </a>
             <section class="imagens">
                 <figure class="imagem-principal">
-                    <img src="https://www.meumoveldemadeira.com.br/cdn/shop/files/G0A4130_600x400.jpg?v=1734975217" alt="">
-                    <h2>Mesa de madeira</h2>
+                    <img src="https://www.cnnbrasil.com.br/wp-content/uploads/sites/12/2023/04/230418093558-01-new-lincoln-nautilus-suv.webp?w=1200&h=900&crop=1" alt="">
+                    <h2>SUV Nautilus</h2>
                 </figure>
                 <div class="imagens-secundarias">
                     <figure class="img-sec-1">
-                        <img src="https://acdn-us.mitiendanube.com/stores/002/253/959/products/11286-111ca9027a987db1a316807777952199-1024-1024.jpg" alt="">
+                        <img src="https://www.cnnbrasil.com.br/wp-content/uploads/sites/12/2023/04/230418093843-03-new-lincoln-nautilus-suv.webp?w=1024" alt="">
                     </figure>
                     <figure class="img-sec-1">
-                        <img src="https://reimse.mx/wp-content/uploads/2020/02/mesa-madera-exteriores-ata-160.jpg" alt="">
+                        <img src="https://media.lincoln.com/content/dam/lincolnmedia/lna/us/2024/10/Lincoln_2.jpg/jcr:content/renditions/cq5dam.web.374.210.jpeg" alt="">
                     </figure>
                 </div>
             </section>
@@ -82,7 +87,7 @@
                     </nav>
                     <div class="dar-lance">
                         <a href="#" id="btn-dar-lance">Dar lance</a>
-                        <a class="voltar" href="tela-inicial.php">Voltar</a>
+                        <!-- <a class="voltar" href="tela-inicial.php">Voltar</a> -->
                     </div>
 
                     <div class="popup-container" id="popup-lance">
