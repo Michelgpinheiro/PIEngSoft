@@ -1,0 +1,235 @@
+@charset "UTF-8";
+
+* {
+
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+header {
+    background-color: #5757ff;
+    display: flex;
+    padding: 20px;
+    padding-left: 40px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+}
+
+.sair:hover {
+    background-image: linear-gradient(to right, transparent, rgba(255, 0, 0, 0.347), transparent);
+    color: white;
+}
+
+.selected-page {
+    background-image: linear-gradient(to right, transparent, white, transparent);    
+}
+
+.header-container {
+    display: flex;
+    width: 100%;
+    height: 40px;
+    justify-content: space-between;
+}
+
+.header-container h1 {
+    color: white;
+    text-shadow: 0px 0px 3px black;
+}
+
+.header-container form {
+    display: flex;
+    border-radius: 0px 10px 10px 0px;
+}
+
+.barra-busca {
+    display: flex;
+}
+
+.barra-busca input {
+    width: 300px;
+    border: none;
+    border-left: 2px solid grey;
+}
+
+.barra-busca select {
+    border-radius: 10px 0px 0px 10px;
+    border: none;
+}
+
+.barra-busca button {
+    border-radius: 10px;
+    padding: 0px 10px;
+    border: none;
+    background-color: black;
+    color: white;
+}
+
+.barra-busca button:hover {
+    background-color: rgb(112, 112, 112);
+    cursor: pointer;
+}
+
+.barra-busca button::before {
+    content: url('../svg/lupa.svg');
+    vertical-align: middle;
+}
+
+figure {
+    display: flex;
+    width: 200px;
+    gap: 10px;
+    align-items: center;
+    font-weight: bold;
+}
+
+img {
+    height: 50px;
+}
+
+form {
+    background-color: white;
+}
+
+.nav-movel {
+    justify-content: space-between;
+    background-color: #d1d1e9;
+    padding-top: 50px;
+    text-align: center;
+    border-radius: 0px 10px 10px 0px;
+    position: fixed;
+}
+
+.epc {
+    height: 30vh;
+}
+
+.nav-estatica {
+    background-color: #d1d1e9;
+    padding-top: 50px;
+    text-align: center;
+    border-radius: 0px 10px 10px 0px;
+    box-shadow: 10px 0px 2px rgb(238, 238, 238);
+}
+
+.nav-estatica a {
+    color: transparent;
+}
+
+nav a {
+    color: black;
+    text-decoration: none;
+    font-weight: bold;
+    line-height: 2.5;
+    padding: 10px 50px;
+}
+
+nav a:hover {
+    background-image: linear-gradient(to right, transparent, white, transparent);
+}
+
+main {
+    display: flex;
+    height: auto;
+    margin-top: 80px;
+}
+
+h3 {
+   margin: 3px 0px 0px 0px; 
+}
+
+p {
+    font-size: 12px;
+}
+
+.main-content {
+    width: 100%;
+}
+
+.cards-section-1 {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 20px;
+}
+
+.inner-card {
+    border: 1px solid #5757ff;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #d1d1e9;
+    box-shadow: 8px 8px 3px rgb(238, 238, 238);
+}
+
+.card figure {
+    width: 100%;
+    height: 20vh;
+}
+
+.card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 1px solid #5757ff;
+}
+
+.card-informations-1, .card-informations-2 {
+    display: flex;
+    gap: 10px;
+    line-height: 1.5;
+}
+
+.card-informations-1 span, .card-informations-2 span {
+    font-weight: bold;
+}
+
+.card-informations-row {
+    height: 1px;
+    width: 100%;
+    background-color: #5757ff;
+    margin: 3px 0px;
+}
+
+.dar-lance a {
+    display: block;
+    font-weight: bold;
+    text-decoration: none;
+    margin: 10px auto;
+    background-color: #4cb844;
+    width: fit-content;
+    padding: 5px 15px;
+    color: white;
+    border-radius: 5px;
+    box-shadow: 8px 8px 3px rgb(238, 238, 238);
+}
+
+.dar-lance a:hover {
+    filter: brightness(0.9);
+}
+
+.perfil-configs p {
+    font-size: 16px;
+    color: white;
+    text-shadow: 0px 0px 2px black;
+}
+
+.perfil-configs img {
+    border-radius: 50%;
+    width: 50px;
+    border: 3px double white;
+}
+
+select:hover {
+    filter: brightness(0.95);
+    cursor: pointer;
+}
+
+

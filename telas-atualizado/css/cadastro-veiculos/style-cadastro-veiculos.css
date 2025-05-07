@@ -1,0 +1,353 @@
+@charset "UTF-8";
+
+* {
+
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+
+header {
+    background-color: #5757ff;
+    display: flex;
+    padding: 20px;
+    padding-left: 40px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+}
+
+.selected-page {
+    background-image: linear-gradient(to right, transparent, white, transparent);    
+}
+
+.header-container {
+    display: flex;
+    width: 100%;
+    height: 40px;
+    justify-content: space-between;
+}
+
+.header-container form {
+    display: flex;
+    border-radius: 0px 10px 10px 0px;
+}
+
+.barra-busca {
+    display: flex;
+}
+
+.barra-busca input {
+    width: 300px;
+    border: none;
+    border-left: 2px solid grey;
+}
+
+.barra-busca select {
+    border-radius: 10px 0px 0px 10px;
+    border: none;
+}
+
+.barra-busca button {
+    border-radius: 10px;
+    padding: 0px 10px;
+    border: none;
+    background-color: black;
+    color: white;
+}
+
+.barra-busca button:hover {
+    background-color: rgb(112, 112, 112);
+    cursor: pointer;
+}
+
+.barra-busca button::before {
+    content: url('../svg/lupa.svg');
+    vertical-align: middle;
+}
+
+figure {
+    display: flex;
+    width: 200px;
+    gap: 10px;
+    align-items: center;
+    font-weight: bold;
+}
+
+img {
+    height: 50px;
+}
+
+form {
+    background-color: white;
+}
+
+.nav-movel {
+    background-color: #d1d1e9;
+    padding-top: 50px;
+    text-align: center;
+    border-radius: 0px 10px 10px 0px;
+    position: fixed;
+}
+
+.nav-estatica {
+    background-color: #d1d1e9;
+    padding-top: 50px;
+    text-align: center;
+    border-radius: 0px 10px 10px 0px;
+    height: auto;
+    box-shadow: 10px 0px 2px rgb(238, 238, 238);
+}
+
+.nav-estatica a {
+    color: transparent;
+}
+
+nav a {
+    color: black;
+    text-decoration: none;
+    font-weight: bold;
+    line-height: 2.5;
+    padding: 10px 50px;
+}
+
+nav a:hover {
+    background-image: linear-gradient(to right, transparent, white, transparent);
+}
+
+main {
+    margin-top: 80px;
+    display: flex;
+    height: auto;
+}
+
+h3 {
+   margin: 3px 0px 0px 0px; 
+}
+
+p {
+    font-size: 12px;
+}
+
+.main-content {
+    width: 100%;
+}
+
+.cadastro-produtos {
+    background-color: #d1d1e9;
+    border: 1px solid #5757ff;
+    border-radius: 15px;
+    width: 75%;
+    margin: 40px auto;
+    box-shadow: 8px 8px 3px rgb(238, 238, 238);
+}
+
+.cadastro-produtos h2 {
+    text-align: center;
+    padding: 20px;
+}
+
+.nav-produtos ul {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.cadastro-produtos li {
+    list-style-type: none;
+    margin-bottom: -20px;
+}
+
+.selected-nav-produto:hover {
+    background-color: lightgray !important;
+}
+
+.cadastro-produtos nav a{
+    font-weight: bold;
+    border: 1px solid black;
+    padding: 10px;
+    border-radius: 10px 10px 0px 0px;
+}
+
+.cadastro-produtos nav a:hover {
+    background-image: linear-gradient(to right, transparent, transparent);
+    background-color: grey;
+}
+
+.nav-produtos-row {
+    height: 1px;
+    width: 100%;
+    background-color: #5757ff;
+    margin-top: -1px;
+}
+
+.divisoria-1 input {
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+}
+
+.divisoria-1 label {
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+
+.divisoria-1, .nome-marca-quantidade-modelo-lanceinicial, .condicao-imagem, .mqml {
+    display: flex;
+}
+
+
+.nome-marca-quantidade-modelo-lanceinicial, .condicao-imagem {
+    flex-direction: column;
+}
+
+.nome, .marca, .quantidade, .modelo, .lanceinicial, .condicao, .imagem figure {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.imagem figure {
+    width: 100%;
+}
+
+.imagem img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.quantidade {
+    width: 100%;
+}
+
+.informacoes-salvar-cancelar, .informacoes, .salvar-cancelar {
+    display: flex;
+}
+
+.informacoes-salvar-cancelar {
+    width: 100%;
+    justify-content: space-between;
+    padding: 0px 20px 20px 20px;
+    margin-top: -20px;
+}
+
+.informacoes {
+    flex-direction: column;
+}
+
+.informacoes textarea {
+    height: 120px;
+    width: 33vw;
+    border: none;
+    border-radius: 10px;
+}
+
+.informacoes label {
+    font-weight: bold;
+    margin-bottom: 3px
+}
+
+.salvar-cancelar {
+    height: fit-content;
+    position: relative;
+    top: 100px;
+}
+
+.salvar-cancelar a, .salvar-cancelar button {
+    background-color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: black;
+    text-decoration: none;
+    margin: 10px;
+}
+
+.salvar-cancelar button {
+    position: relative;
+    bottom: 20px;
+}
+
+.perfil-configs p {
+    font-size: 16px;
+}
+
+select:hover {
+    filter: brightness(0.95);
+    cursor: pointer;
+}
+
+.salvar-cancelar button:hover, .salvar-cancelar a:hover {
+    cursor: pointer;
+    filter: brightness(0.95);
+}
+
+textarea {
+    padding: 10px;
+}
+
+.epc {
+    height: 30vh;
+}
+
+.sair:hover {
+    background-image: linear-gradient(to right, transparent, rgba(255, 0, 0, 0.347), transparent);
+    color: white;
+}
+
+.perfil-configs p {
+    font-size: 16px;
+    color: white;
+    text-shadow: 0px 0px 2px black;
+}
+
+.perfil-configs img {
+    border-radius: 50%;
+    width: 50px;
+    border: 3px double white;
+}
+
+.header-container h1 {
+    color: white;
+    text-shadow: 0px 0px 3px black;
+}
+
+.selected-nav-produto:hover {
+    background-color: #d1d1e9 !important;
+    color: #5757ff !important;
+}
+
+.cadastro-produtos nav a{
+    font-weight: bold;
+    border: 1px solid #5757ff;
+    padding: 10px;
+    border-radius: 10px 10px 0px 0px;
+    color: #5757ff;
+}
+
+.cadastro-produtos nav a:hover {
+    background-image: linear-gradient(to right, transparent, transparent);
+    background-color: #b2b2df;
+    color: white;
+}
+
+.salvar-cancelar a {
+    background-color: #e45858;
+}
+
+.salvar-cancelar button {
+    position: relative;
+    bottom: 20px;
+    background-color: #61e458;
+}
