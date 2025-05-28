@@ -68,6 +68,13 @@
                 }
             } 
 
+            $tipo = "Produto Cadastrado";
+
+            $stmt_movimentacao = $conn->prepare("INSERT INTO movimentacao (ID_USUARIO, TIPO_MOVIMENTACAO, VALOR, NOME_PRODUTO) VALUES (?, ?, ?, ?)");
+            $stmt_movimentacao->bind_param("isds", $_SESSION['id-usuario'], $tipo, $lance_inicial, $nome);
+            $stmt_movimentacao->execute();
+            $stmt_movimentacao->close();
+
             $_SESSION['cadastro-sucesso'] = "<p><i class='material-icons'>check_circle</i> Cadastro de produto realizado com sucesso</p>";
 
             unset($_SESSION['old']);
@@ -226,7 +233,7 @@
                                 </div>
                                 <div class="quantidade">
                                     <label for="quantidade">Quantidade</label>
-                                    <input type="number" name="quantidade" id="quantidade" value="<?=$_SESSION['old']['quantidade'] ?? ''?>" required min="0">
+                                    <input type="number" name="quantidade" id="quantidade" value="<?=$_SESSION['old']['quantidade'] ?? ''?>" required min="1">
                                 </div>
                             </div>
                             <div class="modelo-lanceinicial">

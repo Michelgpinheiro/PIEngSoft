@@ -53,6 +53,29 @@
             header('Location: ' . $_SERVER['PHP_SELF']);
             exit;
         } else {
+
+            function removerAcentos($string) {
+                return preg_replace(
+                    array(
+                        '/[áàãâä]/u', '/[ÁÀÃÂÄ]/u',
+                        '/[éèêë]/u', '/[ÉÈÊË]/u',
+                        '/[íìîï]/u', '/[ÍÌÎÏ]/u',
+                        '/[óòõôö]/u', '/[ÓÒÕÔÖ]/u',
+                        '/[úùûü]/u', '/[ÚÙÛÜ]/u',
+                        '/[ç]/u',    '/[Ç]/u'
+                    ),
+                    array(
+                        'a', 'A',
+                        'e', 'E',
+                        'i', 'I',
+                        'o', 'O',
+                        'u', 'U',
+                        'c', 'C'
+                    ),
+                    $string
+                );
+            }
+
             // Receber dados do formulário
             $usuario = new LegalEntity();
 
@@ -69,10 +92,25 @@
             $usuario->setCnpj($_POST['cnpj'] ?? '');
             $usuario->setEmail($_POST['email'] ?? '');
             $usuario->setPassword(password_hash($senha, PASSWORD_DEFAULT));
+            $pergunta_senha1 = password_hash(
+                htmlspecialchars(
+                    mb_strtolower(removerAcentos($_POST['recuperar-senha-cidade-mae-nasceu']))
+                ), PASSWORD_DEFAULT
+            );
+            $pergunta_senha2 = password_hash(
+                htmlspecialchars(
+                    mb_strtolower(removerAcentos($_POST['recuperar-senha-estimacao-primeiro-nome']))
+                ), PASSWORD_DEFAULT
+            );
+            $pergunta_senha3 = password_hash(
+                htmlspecialchars(
+                    mb_strtolower(removerAcentos($_POST['recuperar-senha-professor-favorito']))
+                ), PASSWORD_DEFAULT
+            );
 
-            $stmt = $conn->prepare("INSERT INTO usuario (ID_TP_USU, ID_USU_PAI, RAZAO_SOCIAL, NOME_FANTASIA, CNPJ, FONE, LOGRADOURO, BAIRRO, NUMERO, UF, CIDADE, EMAIL, SENHA, ST_USUARIO) VALUES (2, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
+            $stmt = $conn->prepare("INSERT INTO usuario (ID_TP_USU, ID_USU_PAI, RAZAO_SOCIAL, NOME_FANTASIA, CNPJ, FONE, LOGRADOURO, BAIRRO, NUMERO, UF, CIDADE, EMAIL, SENHA, PERGUNTA_1, PERGUNTA_2, PERGUNTA_3, ST_USUARIO) VALUES (2, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
 
-            $stmt->bind_param("isssssssssss", $id_usuario, $razao_social, $nome_fantasia, $usuario->getCnpj(), $telefone, $endereco, $bairro, $numero, $estado, $cidade, $usuario->getEmail(), $usuario->getPassword());
+            $stmt->bind_param("issssssssssssss", $id_usuario, $razao_social, $nome_fantasia, $usuario->getCnpj(), $telefone, $endereco, $bairro, $numero, $estado, $cidade, $usuario->getEmail(), $usuario->getPassword(), $pergunta_senha1, $pergunta_senha2, $pergunta_senha3);
 
             if ($stmt->execute()) {
 
@@ -97,12 +135,19 @@
                     }
                 } 
 
+                $tipo = "Cadastro de usuário";
+
+                $stmt_movimentacao = $conn->prepare("INSERT INTO movimentacao (ID_USUARIO, TIPO_MOVIMENTACAO, NOME_CADASTRADO, GRAU) VALUES (?, ?, ?, 2)");
+                $stmt_movimentacao->bind_param("iss", $_SESSION['id-usuario'], $tipo, $nome_fantasia);
+                $stmt_movimentacao->execute();
+                $stmt_movimentacao->close();
+
                 $_SESSION['cadastro-sucesso'] = "<p><i class='material-icons'>check_circle</i> Cadastro de usuário realizado com sucesso</p>";
 
                 // $_SESSION['cadastro-sucesso'] = true;
-                $_SESSION['email-usuario'] = $usuario->getEmail();
-                $_SESSION['senha-usuario'] = $senha;
-                $_SESSION['nome-fantasia'] = $nome_fantasia;
+                // $_SESSION['email-usuario'] = $usuario->getEmail();
+                // $_SESSION['senha-usuario'] = $senha;
+                // $_SESSION['nome-fantasia'] = $nome_fantasia;
 
                 unset($_SESSION['old']);
 
@@ -302,7 +347,7 @@
                         </div>
                         <div class="separador"></div>
                     </div>
-                    <form style="background-color: #8a3e2c;" action="<?=$_SERVER['PHP_SELF']?>" method="POST" enctype="multipart/form-data" class="form-cadastros">
+                    <form style="background-color: #8a3e2c;" action="<?=$_SERVER['PHP_SELF']?>" method="POST" enctype="multipart/form-data" class="form-cadastros" id="form-cadastros">
 
                         <div class="div1">
                             <div class="nome-telefone-cpf">
@@ -401,7 +446,7 @@
                                 <div class="complemento-cidade">
                                     <div class="complemento">
                                         <label for="complemento">Complemento</label>
-                                        <input type="text" name="complemento" id="complemento" value="<?=$_SESSION['old']['complemento'] ?? ''?>" required>
+                                        <input type="text" name="complemento" id="complemento" value="<?=$_SESSION['old']['complemento'] ?? ''?>">
                                     </div>
                                     <div class="cidade">
                                         <label for="cidade">Cidade</label>
@@ -428,9 +473,320 @@
                                 </div>
                             </div>
                             <div class="avancar-cancelar salvar-cancelar">
-                                <button class="enviar-cadastro" type="submit">Enviar</button>
+                                <button class="enviar-cadastro" id="btn-abrir-popup" type="button">Avançar</button>
                                 <a class="cancelar-cadastro" href="listagem-usuarios-adm.php">Cancelar</a>
                             </div>
+
+                            <div id="popup" class="popup">
+                                <div class="popup-conteudo">
+                                    <span id="btn-fechar-popup" class="fechar">&times;</span>
+                                    <h2>Preencha essas informações</h2>
+                                    <p style="margin-bottom: 20px; text-align: center; font-size: 15px; color: #fff0ce;">Elas servirão para recuperar a senha do usuário cadastrado caso o mesmo esqueça eventualmete</p>
+
+                                    <form action="#" method="POST">
+                                        <label for="recuperar-senha-cidade-mae-nasceu">Em qual cidade a mãe dele nasceu?</label>
+                                        <input required type="text" name="recuperar-senha-cidade-mae-nasceu"><br>
+                                        <label for="recuperar-senha-estimacao-primeiro-nome">Qual o nome do primeiro animal de estimação dele?</label>
+                                        <input required type="text" name="recuperar-senha-estimacao-primeiro-nome"><br>
+                                        <label for="recuperar-senha-professor-favorito">Qual nome do professor favorito dele?</label>
+                                        <input required type="text" name="recuperar-senha-professor-favorito"><br><br>
+                                        
+                                        <button class="enviar-cadastro1" type="submit">Cadastrar</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div id="popup-cep2" style="
+                                display: flex;
+                                align-items: center;
+                                position: fixed;
+                                top: 40px;
+                                right: 480px;
+                                background-color: yellow;
+                                color: darkgoldenrod;
+                                border: 2px solid darkgoldenrod;
+                                gap: 8px;
+                                padding: 10px;
+                                border-radius: 10px;
+                                box-shadow: 0 0 10px rgba(0,0,0,0.3);
+                                z-index: 9999;
+                                display: none;
+                                font-weight: bold;
+                            ">
+                                <i style="transform: scale(1.2);" class='material-icons'>warning</i>
+                                <span id="pop-up-message2"></span>
+                            </div>
+                            <div id="popup-cep4" style="
+                                display: flex;
+                                align-items: center;
+                                position: fixed;
+                                top: 40px;
+                                right: 480px;
+                                background-color: yellow;
+                                color: darkgoldenrod;
+                                border: 2px solid darkgoldenrod;
+                                gap: 8px;
+                                padding: 10px;
+                                border-radius: 10px;
+                                box-shadow: 0 0 10px rgba(0,0,0,0.3);
+                                z-index: 9999;
+                                display: none;
+                                font-weight: bold;
+                            ">
+                                <i style="transform: scale(1.2);" class='material-icons'>warning</i>
+                                <span id="pop-up-message4"></span>
+                            </div>
+                            <div id="popup-cep3" style="
+                                display: flex;
+                                align-items: center;
+                                position: fixed;
+                                top: 90px; 
+                                left: 650px;    
+                                background-color: yellow;
+                                color: darkgoldenrod;
+                                border: 2px solid darkgoldenrod;
+                                gap: 8px;
+                                padding: 10px;
+                                border-radius: 10px;
+                                box-shadow: 0 0 10px rgba(0,0,0,0.3);
+                                z-index: 9999;
+                                display: none;
+                                font-weight: bold;
+                            ">
+                                <i style="transform: scale(1.2);" class='material-icons'>warning</i>
+                                <span id="pop-up-message3"></span>
+                            </div>
+                            <div id="popup-cep" style="
+                                display: flex;
+                                align-items: center;
+                                position: fixed;
+                                top: 90px;
+                                right: 475px;
+                                background-color: yellow;
+                                color: darkgoldenrod;
+                                border: 2px solid darkgoldenrod;
+                                gap: 8px;
+                                padding: 10px;
+                                border-radius: 10px;
+                                box-shadow: 0 0 10px rgba(0,0,0,0.3);
+                                z-index: 9999;
+                                display: none;
+                                font-weight: bold;
+                            ">
+                                <i style="transform: scale(1.2);" class='material-icons'>warning</i>
+                                <span id="pop-up-message"></span>
+                            </div>
+                            <script>
+                                const btnAbrir = document.getElementById('btn-abrir-popup');
+                                const popup = document.getElementById('popup');
+                                const btnFechar = document.getElementById('btn-fechar-popup');
+
+                                btnAbrir.onclick = function() {
+                                    popup.style.display = "block";
+                                }
+
+                                btnFechar.onclick = function() {
+                                    popup.style.display = "none";
+                                }
+
+                                // Fechar clicando fora do popup
+                                window.onclick = function(event) {
+                                    if (event.target == popup) {
+                                        popup.style.display = "none";
+                                    }
+                                }
+
+                                function validarCNPJ(cnpj) {
+                                    cnpj = cnpj.replace(/[^\d]+/g, ''); // Remove tudo que não for número
+
+                                    if (cnpj.length !== 14) return false;
+
+                                    // Elimina CNPJs inválidos conhecidos (sequências iguais)
+                                    if (/^(\d)\1{13}$/.test(cnpj)) return false;
+
+                                    let tamanho = cnpj.length - 2;
+                                    let numeros = cnpj.substring(0, tamanho);
+                                    let digitos = cnpj.substring(tamanho);
+                                    let soma = 0;
+                                    let pos = tamanho - 7;
+
+                                    for (let i = tamanho; i >= 1; i--) {
+                                        soma += parseInt(numeros.charAt(tamanho - i)) * pos--;
+                                        if (pos < 2) pos = 9;
+                                    }
+
+                                    let resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+                                    if (resultado != parseInt(digitos.charAt(0))) return false;
+
+                                    tamanho += 1;
+                                    numeros = cnpj.substring(0, tamanho);
+                                    soma = 0;
+                                    pos = tamanho - 7;
+
+                                    for (let i = tamanho; i >= 1; i--) {
+                                        soma += parseInt(numeros.charAt(tamanho - i)) * pos--;
+                                        if (pos < 2) pos = 9;
+                                    }
+
+                                    resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+                                    if (resultado != parseInt(digitos.charAt(1))) return false;
+
+                                    return true;
+                                }
+
+
+                                document.getElementById('cnpj').addEventListener('blur', function() {
+                                    const cnpj = this.value;
+                                    if (!validarCNPJ(cnpj)) {
+                                        showPopupErroCPF('CNPJ inválido!');
+                                    }
+                                });
+
+
+                                function showPopupErroCep(message) {
+                                    const popup = document.getElementById('popup-cep2');
+                                    const messageSpan = document.getElementById('pop-up-message2');
+
+                                    messageSpan.textContent = message;
+                                    popup.style.display = 'flex';
+                                    popup.style.opacity = '1';
+                                    popup.style.transition = 'opacity 1s ease';
+
+                                    setTimeout(() => {
+                                        popup.style.opacity = '0';
+                                        setTimeout(() => {
+                                            popup.style.display = 'none';
+                                        }, 300); // Espera o fade-out (1 segundo) antes de sumir completamente
+                                    }, 3000); // Mantém visível por 3 segundos antes de começar o fade-out
+                                }
+
+                                function showPopup(message) {
+                                    const popup = document.getElementById('popup-cep');
+                                    const messageSpan = document.getElementById('pop-up-message');
+
+                                    messageSpan.textContent = message;
+                                    popup.style.display = 'flex';
+                                    popup.style.opacity = '1';
+                                    popup.style.transition = 'opacity 1s ease';
+
+                                    setTimeout(() => {
+                                        popup.style.opacity = '0';
+                                        setTimeout(() => {
+                                            popup.style.display = 'none';
+                                        }, 300); // Espera o fade-out (1 segundo) antes de sumir completamente
+                                    }, 3000); // Mantém visível por 3 segundos antes de começar o fade-out
+                                }
+
+                                function showPopupErroCNPJ(message) {
+                                    const popup = document.getElementById('popup-cep4');
+                                    const messageSpan = document.getElementById('pop-up-message4');
+
+                                    messageSpan.textContent = message;
+                                    popup.style.display = 'flex';
+                                    popup.style.opacity = '1';
+                                    popup.style.transition = 'opacity 1s ease';
+
+                                    setTimeout(() => {
+                                        popup.style.opacity = '0';
+                                        setTimeout(() => {
+                                            popup.style.display = 'none';
+                                        }, 300); // Espera o fade-out (1 segundo) antes de sumir completamente
+                                    }, 3000); // Mantém visível por 3 segundos antes de começar o fade-out
+                                }
+
+                                function showPopupErroCPF(message) {
+                                    const popup = document.getElementById('popup-cep3');
+                                    const messageSpan = document.getElementById('pop-up-message3');
+
+                                    messageSpan.textContent = message;
+                                    popup.style.display = 'flex';
+                                    popup.style.opacity = '1';
+                                    popup.style.transition = 'opacity 1s ease';
+
+                                    setTimeout(() => {
+                                        popup.style.opacity = '0';
+                                        setTimeout(() => {
+                                            popup.style.display = 'none';
+                                        }, 300); // Espera o fade-out (1 segundo) antes de sumir completamente
+                                    }, 3000); // Mantém visível por 3 segundos antes de começar o fade-out
+                                }
+
+                                const estados = {
+                                    'AC': 'Acre',
+                                    'AL': 'Alagoas',
+                                    'AP': 'Amapá',
+                                    'AM': 'Amazonas',
+                                    'BA': 'Bahia',
+                                    'CE': 'Ceará',
+                                    'DF': 'Distrito Federal',
+                                    'ES': 'Espírito Santo',
+                                    'GO': 'Goiás',
+                                    'MA': 'Maranhão',
+                                    'MT': 'Mato Grosso',
+                                    'MS': 'Mato Grosso do Sul',
+                                    'MG': 'Minas Gerais',
+                                    'PA': 'Pará',
+                                    'PB': 'Paraíba',
+                                    'PR': 'Paraná',
+                                    'PE': 'Pernambuco',
+                                    'PI': 'Piauí',
+                                    'RJ': 'Rio de Janeiro',
+                                    'RN': 'Rio Grande do Norte',
+                                    'RS': 'Rio Grande do Sul',
+                                    'RO': 'Rondônia',
+                                    'RR': 'Roraima',
+                                    'SC': 'Santa Catarina',
+                                    'SP': 'São Paulo',
+                                    'SE': 'Sergipe',
+                                    'TO': 'Tocantins'
+                                };
+
+                                let cep_valido = false;
+
+                                document.getElementById('cep').addEventListener('blur', function() {
+                                    const cep = this.value.replace(/\D/g, '');
+
+                                    if (cep.length !== 8) {
+                                        showPopup("CEP inválido. Insira 8 dígitos.");
+                                        cep_valido = false;
+                                        return;
+                                    }
+
+                                    fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            if (data.erro) {
+                                                showPopup('CEP não encontrado!');
+                                                cep_valido = false;
+                                                return;
+                                            }
+                                            document.getElementById('endereco').value = data.logradouro;
+                                            document.getElementById('bairro').value = data.bairro;
+                                            document.getElementById('cidade').value = data.localidade;
+                                            document.getElementById('estado').value = estados[data.uf];
+                                            cep_valido = true;
+                                        })
+                                    .catch(() => {
+                                        showPopup('Erro ao buscar o CEP. Verifique sua conexão.');
+                                        cep_valido = false;
+                                    });
+                                });
+
+                                document.getElementById('form-cadastros').addEventListener('submit', function(event) {
+                                    if (!cep_valido) {
+                                        event.preventDefault();
+                                        showPopupErroCep('Insira um CEP válido antes de cadastrar');
+                                    }
+                                });
+
+                                document.getElementById('form-cadastros').addEventListener('submit', function(event) {
+                                    const cnpj = document.getElementById('cnpj').value;
+
+                                    if (!validarCNPJ(cnpj)) {
+                                        event.preventDefault();
+                                        showPopupErroCNPJ('Insira um CNPJ válido antes de cadastrar');
+                                    }
+                                });
+                            </script>
                         </div>
                     </form>
                 </section>

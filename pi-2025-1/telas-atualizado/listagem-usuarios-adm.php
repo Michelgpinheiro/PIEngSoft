@@ -9,8 +9,6 @@
         exit;
     }
 
-    // unset($_SESSION['cadastro-sucesso'], $_SESSION['email-usuario'], $_SESSION['senha-usuario']);
-
     $usuario = new LegalEntity();
     $usuario->setId($_SESSION['id-usuario']);
     $id_usuario = $usuario->getId();
@@ -29,8 +27,8 @@
     <link rel="stylesheet" href="css/listagem-usuarios-adm/style-listagem-usuarios-adm.css">
     <link rel="stylesheet" href="css/logout/style-logout.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="css/-estilizacao-geral.css">
-    <link rel="stylesheet" href="css/estilizacao-geral.css">
+    <link rel="stylesheet" href="css/-estilizacao-geral.css?v=<?=time()?>">
+    <link rel="stylesheet" href="css/estilizacao-geral.css?v=<?=time()?>">
 </head>
 <body>
     <header>
@@ -142,37 +140,76 @@
                         </a>
                     </div>
                     <div class="barra-busca busca-user">
-                        <form class="form-buscar" action="">
-                            <input type="text" name="buscar" id="buscar" placeholder="Buscar usuário...">
+                        <form class="form-buscar" method="POST" action="listagem-usuarios-adm.php">
+                            <input type="text" name="buscar-usuario" id="buscar" placeholder="Buscar usuário...">
                             <button type="submit"></button>
                         </form>
                     </div>
                 </div>
                 <div class="usuario-cards">
                     <?php 
-                        
-                        $stmt = $conn->prepare("SELECT ID, ID_TP_USU, NOME_FANTASIA, NOME, FOTO FROM usuario WHERE ID_USU_PAI = ?");
-                        $stmt->bind_param("i", $id_usuario);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
+
+                        $usuario_que_busco = isset($_POST['buscar-usuario']) ? htmlspecialchars($_POST['buscar-usuario']) : '';
+
+                        if (!empty($usuario_que_busco)) {
+                            $stmt = $conn->prepare("SELECT * FROM usuario WHERE NOME LIKE ? OR NOME_FANTASIA LIKE ?");
+                            $like = "%$usuario_que_busco%";
+                            $stmt->bind_param("ss", $like, $like);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+
+                            if ($result->num_rows == 0) {
+                                echo '
+                                
+                                <div class="sem-leilao">
+                                    <p><i class="material-icons">question_mark</i> Nenhum usuário com nome "'. $usuario_que_busco .'" encontrado</p>
+                                </div>
+                                
+                                ';
+                            }
+                        } else {       
+                            $stmt = $conn->prepare("SELECT ID, ID_TP_USU, NOME_FANTASIA, NOME, FOTO FROM usuario WHERE ID_USU_PAI = ? OR (ID_TP_USU = 1 OR ID_TP_USU = 2) AND ID <> ?");
+                            $stmt->bind_param("ii", $id_usuario, $id_usuario);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                        }
+                        $stmt->close();
 
                         while ($row = $result->fetch_assoc()) {
                             $id = $row['ID'];
                             if ($row['ID_TP_USU'] === 1) {
                                 $nome = htmlspecialchars($row['NOME'] ?? '<sem nome>');
+                                $icone = "person";
+                                $pause = '
+                                     <button class="pause">
+                                        <img src="css/svg/pause.svg" alt="">
+                                    </button>
+                                ';
                             } else {
                                 $nome = htmlspecialchars($row['NOME_FANTASIA'] ?? '<sem nome>');
+                                $icone = "manage_accounts";
+                                $pause = '
+                                    <button class="pause" style="visibility: hidden;">
+                                        <img src="css/svg/pause.svg" alt="">
+                                    </button>
+                                ';
                             }
-                            $foto = $row['FOTO'] ?: 'https://www.cnnbrasil.com.br/wp-content/uploads/sites/12/2023/03/150313105721-pi-day-graphic.jpg?w=1115'; // Caminho padrão caso não tenha foto
 
+                            if (isset($row['FOTO'])) {
+                                $foto = $row['FOTO'];    
+                            } else {
+                                $foto = "css/svg/user-icon.svg";
+                            }
+
+                            
                             echo '
                             <div class="user-card">
                                 <div class="card-start">
                                     <figure class="perfil-configs user-img">
                                         <img src="' . $foto . '" alt="">
                                     </figure>
-                                    <p class="nome">' . $nome . '</p>
-                                    <p class="id">Id: ' . $id . '</p>
+                                    <p class="nome" style="width: 280px; display: flex; align-items: left;"><i class="material-icons">'. $icone .'</i>' . $nome  . '</p>
+                                    <p class="id" style="width: 40px;">Id: ' . $id . '</p>
                                 </div>
                                 <div class="card-end">
                                     <div style="visibility: hidden;" class="pause-view">
@@ -184,12 +221,10 @@
                                         </button>
                                     </div>
                                     <div class="pause-view">
-                                        <button class="pause">
-                                            <img src="css/svg/pause.svg" alt="">
-                                        </button>
-                                        <button class="view">
+                                        '. $pause .'
+                                        <a href="historico-usuario.php?id='. $id .'" class="view">
                                             <img src="css/svg/visibility.svg" alt="">
-                                        </button>
+                                        </a>
                                     </div>
                                 </div>
                             </div>';

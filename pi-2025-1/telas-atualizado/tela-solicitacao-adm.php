@@ -111,8 +111,8 @@
                 <h2>Listagem de usuários</h2>
                 <div class="adicionar-buscar">
                     <div class="barra-busca busca-user">
-                        <form class="form-buscar" action="">
-                            <input type="text" name="buscar" id="buscar" placeholder="Buscar usuário...">
+                        <form class="form-buscar" method="POST" action="tela-solicitacao-adm.php">
+                            <input type="text" name="buscar-usuario" id="buscar" placeholder="Buscar usuário...">
                             <button type="submit"></button>
                         </form>
                     </div>
@@ -138,21 +138,70 @@
                         <?php
                         unset($_SESSION['solicitacao-aprovada']);
                     }
+
+                    if (isset($_SESSION['solicitacao-recusa'])) {
+                        ?>
+                        <div class="mensagem-erro" id="mensagem-erro">
+                            <?=$_SESSION['solicitacao-recusa']?>
+                        </div>
+                        <script>
+                            // Oculta a mensagem após 4 segundos
+                            setTimeout(function() {
+                                const msg = document.getElementById('mensagem-erro');
+                                if (msg) {
+                                    msg.style.transition = 'opacity 0.5s ease';
+                                    msg.style.opacity = '0';
+                                    setTimeout(() => msg.remove(), 500); // Remove do DOM após o fade-out
+                                }
+                            }, 4000);
+                        </script>
+                        <?php
+                        unset($_SESSION['solicitacao-recusa']);
+                    }
                     
                 ?>
                 <div class="usuario-cards">
                 <?php
-                
-                    $stmt = $conn->prepare (
-                        "SELECT u.ID AS ID, u.NOME AS NOME, u.NOME_FANTASIA AS NOME_FANTASIA, u.ID_TP_USU AS TP_USUARIO, u.FOTO AS FOTO, p.ID AS ID_PRODUTO, l.VERIFICADO AS VERIFICADO 
-                        FROM usuario u 
-                        INNER JOIN produto p ON p.ID_USUARIO = u.ID
-                        INNER JOIN leilao l ON l.ID_PRODUTO = p.ID
-                        WHERE p.STATUS_PRODUTO = 5;
-                        ;
-                    ");
-                    $stmt->execute();
-                    $result = $stmt->get_result();
+
+                    $usuario_que_busco = isset($_POST['buscar-usuario']) ? htmlspecialchars($_POST['buscar-usuario']) : '';
+
+                    if (!empty($usuario_que_busco)) {
+                        $stmt = $conn->prepare(
+                            "SELECT u.ID AS ID, u.NOME AS NOME, u.NOME_FANTASIA AS NOME_FANTASIA, u.ID_TP_USU AS TP_USUARIO, u.FOTO AS FOTO, p.ID AS ID_PRODUTO, l.VERIFICADO AS VERIFICADO 
+                            FROM usuario u 
+
+                            INNER JOIN produto p ON p.ID_USUARIO = u.ID
+                            INNER JOIN leilao l ON l.ID_PRODUTO = p.ID 
+
+                            WHERE (u.NOME LIKE ? OR u.NOME_FANTASIA LIKE ?) AND u.ID <> ?
+                        ");
+                        $like = "%$usuario_que_busco%";
+                        $stmt->bind_param("ssi", $like, $like, $id_usuario);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+
+                        if ($result->num_rows == 0) {
+                            echo '
+                            
+                            <div class="sem-leilao">
+                                <p><i class="material-icons">question_mark</i> Nenhum usuário com nome "'. $usuario_que_busco .'" encontrado</p>
+                            </div>
+                            
+                            ';
+                        }
+                    } else {
+                        $stmt = $conn->prepare (
+                            "SELECT u.ID AS ID, u.NOME AS NOME, u.NOME_FANTASIA AS NOME_FANTASIA, u.ID_TP_USU AS TP_USUARIO, u.FOTO AS FOTO, p.ID AS ID_PRODUTO, l.VERIFICADO AS VERIFICADO 
+                            FROM usuario u 
+                            INNER JOIN produto p ON p.ID_USUARIO = u.ID
+                            INNER JOIN leilao l ON l.ID_PRODUTO = p.ID
+                            WHERE p.STATUS_PRODUTO = 5 AND u.ID <> ?;
+                            
+                        ");
+                        $stmt->bind_param("i", $id_usuario);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+                    }
 
                     while ($row = $result->fetch_assoc()) {
                         $user_id = $row['ID'];

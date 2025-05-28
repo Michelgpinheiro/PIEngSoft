@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 22/05/2025 às 01:39
+-- Tempo de geração: 29/05/2025 às 00:54
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -30,18 +30,11 @@ SET time_zone = "+00:00";
 CREATE TABLE `lancamento` (
   `ID_USUARIO` int(11) NOT NULL,
   `ID_LEILAO` int(11) NOT NULL,
-  `VALOR` double NOT NULL,
+  `VALOR` decimal(10,2) NOT NULL,
   `CONTATO` varchar(30) NOT NULL,
   `OBSERVACOES` varchar(250) NOT NULL,
   `ID_PRODUTO` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `lancamento`
---
-
-INSERT INTO `lancamento` (`ID_USUARIO`, `ID_LEILAO`, `VALOR`, `CONTATO`, `OBSERVACOES`, `ID_PRODUTO`) VALUES
-(1, 1, 1500, '(88)99917-9001', 'Vou comprar essa caramba sim', 1);
 
 -- --------------------------------------------------------
 
@@ -70,12 +63,33 @@ CREATE TABLE `leilao` (
   `VERIFICADO` tinyint(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
 --
--- Despejando dados para a tabela `leilao`
+-- Estrutura para tabela `mensagem`
 --
 
-INSERT INTO `leilao` (`ID`, `ID_USUARIO`, `ID_PRODUTO`, `TITULO`, `DATA_INICIO`, `DATA_FINAL`, `NUMERO_PARACAS`, `REDUCAO_PRACA`, `DIFERENCA_PRACA`, `VALOR_INCREMENTO`, `CONTATO`, `DESCRICAO`, `FOTO_1`, `FOTO_2`, `FOTO_3`, `FOTO_4`, `MOTIVO_RECUSA`, `VERIFICADO`) VALUES
-(1, 1, 0, 'Samsung Galaxy A35', '2025-05-01 13:50:00', '2025-05-22 10:30:00', 2, 20, 15, 500, '(88)99917-9001', 'Tô vendendo vey, e é isso', 0x696d6167656e732f6c65696c616f2f666f746f5f315f312e6a7067, 0x696d6167656e732f6c65696c616f2f666f746f5f315f322e6a7067, NULL, NULL, NULL, 1);
+CREATE TABLE `mensagem` (
+  `ID` int(11) NOT NULL,
+  `ID_USUARIO` int(11) DEFAULT NULL,
+  `MENSAGEM` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `movimentacao`
+--
+
+CREATE TABLE `movimentacao` (
+  `ID` int(11) NOT NULL,
+  `ID_USUARIO` int(11) NOT NULL,
+  `TIPO_MOVIMENTACAO` varchar(255) DEFAULT NULL,
+  `VALOR` int(11) DEFAULT NULL,
+  `NOME_PRODUTO` varchar(255) DEFAULT NULL,
+  `NOME_CADASTRADO` varchar(255) DEFAULT NULL,
+  `GRAU` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -136,8 +150,10 @@ CREATE TABLE `produto` (
   `LANCE_INICIAL` double DEFAULT NULL,
   `DADOS_ADICIONAIS` varchar(500) DEFAULT NULL,
   `FOTO` longblob DEFAULT NULL,
-  `STATUS_PRODUTO` int(5) DEFAULT NULL COMMENT '1 = A ser leiloado, 2 = Em leilão, 3 = Recusado, 4 = Resultado, 5 = Em análise',
-  `CATEGORIA` varchar(255) DEFAULT NULL
+  `STATUS_PRODUTO` int(5) DEFAULT NULL COMMENT '1 = A ser leiloado, 2 = Em leilão, 3 = Recusado, 4 = Resultado, 5 = Em análise, 6 = Suspenso, 7 = Deletado',
+  `CATEGORIA` varchar(255) DEFAULT NULL,
+  `MOTIVO_SUSPENSAO` varchar(255) DEFAULT NULL,
+  `MOTIVO_EXCLUSAO` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -185,15 +201,18 @@ CREATE TABLE `usuario` (
   `SENHA` varchar(255) DEFAULT NULL,
   `ST_USUARIO` int(11) DEFAULT NULL,
   `FOTO` longblob DEFAULT NULL,
-  `ID_USU_PAI` int(11) DEFAULT NULL
+  `ID_USU_PAI` int(11) DEFAULT NULL,
+  `PERGUNTA_1` varchar(255) DEFAULT NULL,
+  `PERGUNTA_2` varchar(255) DEFAULT NULL,
+  `PERGUNTA_3` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `usuario`
 --
 
-INSERT INTO `usuario` (`ID`, `ID_TP_USU`, `NOME`, `CPF`, `RG`, `RAZAO_SOCIAL`, `NOME_FANTASIA`, `CNPJ`, `FONE`, `LOGRADOURO`, `BAIRRO`, `NUMERO`, `UF`, `CIDADE`, `EMAIL`, `SENHA`, `ST_USUARIO`, `FOTO`, `ID_USU_PAI`) VALUES
-(1, 2, 'Morya Samyak', '000000000', '0000000000', NULL, NULL, NULL, '(88)99917-9001', 'Rua João Luciano Moreira', 'Tiradentes', '64A', 'CE', 'Juazeiro do Norte', 'teste@email.com', 'testeLeilao', 1, NULL, NULL);
+INSERT INTO `usuario` (`ID`, `ID_TP_USU`, `NOME`, `CPF`, `RG`, `RAZAO_SOCIAL`, `NOME_FANTASIA`, `CNPJ`, `FONE`, `LOGRADOURO`, `BAIRRO`, `NUMERO`, `UF`, `CIDADE`, `EMAIL`, `SENHA`, `ST_USUARIO`, `FOTO`, `ID_USU_PAI`, `PERGUNTA_1`, `PERGUNTA_2`, `PERGUNTA_3`) VALUES
+(1, 2, 'Morya Samyak', '000000000', '0000000000', NULL, NULL, NULL, '(88)99917-9001', 'Rua João Luciano Moreira', 'Tiradentes', '64A', 'CE', 'Juazeiro do Norte', 'teste@email.com', 'testeLeilao', 1, NULL, NULL, NULL, NULL, NULL);
 
 --
 -- Índices para tabelas despejadas
@@ -204,7 +223,7 @@ INSERT INTO `usuario` (`ID`, `ID_TP_USU`, `NOME`, `CPF`, `RG`, `RAZAO_SOCIAL`, `
 --
 ALTER TABLE `lancamento`
   ADD PRIMARY KEY (`ID_USUARIO`,`ID_LEILAO`),
-  ADD UNIQUE KEY `ID_LEILAO` (`ID_LEILAO`);
+  ADD UNIQUE KEY `ID_LEILAO_2` (`ID_LEILAO`);
 
 --
 -- Índices de tabela `leilao`
@@ -213,6 +232,18 @@ ALTER TABLE `leilao`
   ADD PRIMARY KEY (`ID`),
   ADD KEY `ID_USUARIO` (`ID_USUARIO`),
   ADD KEY `ID_PRODUTO` (`ID_PRODUTO`);
+
+--
+-- Índices de tabela `mensagem`
+--
+ALTER TABLE `mensagem`
+  ADD PRIMARY KEY (`ID`);
+
+--
+-- Índices de tabela `movimentacao`
+--
+ALTER TABLE `movimentacao`
+  ADD PRIMARY KEY (`ID`);
 
 --
 -- Índices de tabela `permissao_usu`
@@ -256,7 +287,19 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de tabela `leilao`
 --
 ALTER TABLE `leilao`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `mensagem`
+--
+ALTER TABLE `mensagem`
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `movimentacao`
+--
+ALTER TABLE `movimentacao`
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `permissao_usu`
@@ -291,12 +334,6 @@ ALTER TABLE `usuario`
 --
 -- Restrições para tabelas despejadas
 --
-
---
--- Restrições para tabelas `lancamento`
---
-ALTER TABLE `lancamento`
-  ADD CONSTRAINT `lancamento_ibfk_1` FOREIGN KEY (`ID_LEILAO`) REFERENCES `leilao` (`ID`);
 
 --
 -- Restrições para tabelas `permissao_usu`

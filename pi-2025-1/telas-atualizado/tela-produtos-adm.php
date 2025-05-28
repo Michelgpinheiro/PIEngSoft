@@ -180,7 +180,7 @@
                             break;
                         } case 2: {
                             $botao = '<div class="dar-lance leiloar">
-                            <a href="#">Em leilão</a></div>';
+                            <a href="#" onclick="return false">Em leilão</a></div>';
                             break;
                         } case 3: {
                             $stmt_recusa = $conn->prepare("SELECT MOTIVO_RECUSA FROM leilao WHERE ID_PRODUTO = ?");
@@ -246,21 +246,23 @@
                                 <div class="dar-lance leiloar" style="position: static;">
                                     <a style="background-color: darkblue; border-color: cyan; color: cyan;" href="#" id="btn-dar-lance-'.$id_unico.'">Resultado</a>
 
-                                    <div class="popup-container popup-container-pagamento" id="popup-lance-'.$id_unico.'" style="display: none;">
-                                        <div class="popup-content popup-pagamento" style="background-color: #bd6c34;">
+                                    <div class="popup-container popup-container-pagamento leiloar-result" id="popup-lance-'.$id_unico.'" style="display: none;">
+                                        <div class="popup-content popup-pagamento" style=" background-color: #bd6c34;">
                                             <span id="close-popup-'.$id_unico.'" class="close-popup close-popup-pag">&times;</span>
                                             <div class="valor-contato">
                                                 <div class="lance-valor">
                                                     <label for="valor-lance-'.$id_unico.'">Valor</label>
-                                                    <input type="number" id="valor-lance-'.$id_unico.'" step="any" disabled style="background-color:#fff0ce;" value="'. $valor_leilao .'">
+                                                    <p style="margin-top: 3px; width: 110px; background-color: #fff0ce;" id="valor-lance-'.$id_unico.'">R$ '. number_format($valor_leilao, 2, ',', '.') .'</p>
+                                                    
+                                                    
                                                 </div>
                                                 <div class="lance-contato">
                                                     <label for="contato-lance-'.$id_unico.'">Contato</label>
-                                                    <input type="tel" id="contato-lance-'.$id_unico.'" disabled value="'. $contato_leilao .'" style="background-color:#fff0ce;">
+                                                    <p style="margin-top: 3px; width: 130px; background-color: #fff0ce;" id="valor-lance-'.$id_unico.'">'. $contato_leilao .'</p>
                                                 </div>
                                             </div>
                                             <label for="observacoes-lance-'.$id_unico.'">Observações</label>
-                                            <textarea id="observacoes-lance-'.$id_unico.'" rows="4" cols="30" disabled>'. $observacoes_leilao .'</textarea><br><br>
+                                            <p style="margin-top: 3px;width: fit-content; background-color: #fff0ce;" id="valor-lance-'.$id_unico.'">'. $observacoes_leilao .'</p>
                                         </div>
                                     </div>
                                 </div>
@@ -289,6 +291,95 @@
                         } case 5: {
                             $botao = '<div class="dar-lance leiloar">
                             <a href="#">Em análise</a></div>';
+
+                            break;
+                        } case 6: {
+
+                            $stmt_recusa = $conn->prepare("SELECT MOTIVO_SUSPENSAO FROM produto WHERE ID = ?");
+                            $stmt_recusa->bind_param("i", $id_produto);
+                            $stmt_recusa->execute();
+                            $result_recusa = $stmt_recusa->get_result();
+                            $stmt_recusa->close();
+
+                            while ($row_rec = $result_recusa->fetch_assoc()) {
+                                $recusa = htmlspecialchars($row_rec['MOTIVO_SUSPENSAO']);
+                            }
+
+                            $id_unico = $id_produto;
+                            $botao = '
+                                <div class="dar-lance leiloar" style="position: static;">
+                                    <a style="background-color: brown; border-color: orange; color: orange;" href="#" id="btn-dar-lance-'.$id_unico.'">Suspenso</a>
+
+                                    <div class="popup-container popup-container-recusa" id="popup-lance-'.$id_unico.'" style="display: none;">
+                                        <div class="popup-content">
+                                            <span id="close-popup-'.$id_unico.'" class="close-popup">&times;</span>
+                                            <label for="motivo-recusa">Motivo da suspensão</label>
+                                            <p style="background-color: #fff0ce;" class="popup-motivo-recusa">' . $recusa . '</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", function () {
+                                        const popup = document.getElementById("popup-lance-'.$id_unico.'");
+                                        const closeBtn = document.getElementById("close-popup-'.$id_unico.'");
+                                        const openBtn = document.getElementById("btn-dar-lance-'.$id_unico.'");
+
+                                        openBtn.addEventListener("click", function (e) {
+                                            e.preventDefault();
+                                            popup.style.display = "block";
+                                        });
+
+                                        closeBtn.addEventListener("click", function () {
+                                            popup.style.display = "none";
+                                        });
+                                    });
+                                </script> ';
+
+                            break;
+                        } case 7: {
+                            
+
+                            $stmt_recusa = $conn->prepare("SELECT MOTIVO_EXCLUSAO FROM produto WHERE ID = ?");
+                            $stmt_recusa->bind_param("i", $id_produto);
+                            $stmt_recusa->execute();
+                            $result_recusa = $stmt_recusa->get_result();
+                            $stmt_recusa->close();
+
+                            while ($row_rec = $result_recusa->fetch_assoc()) {
+                                $recusa = htmlspecialchars($row_rec['MOTIVO_EXCLUSAO']);
+                            }
+
+                            $id_unico = $id_produto;
+                            $botao = '
+                                <div class="dar-lance leiloar" style="position: static;">
+                                    <a style="background-color: red; border-color: darkred; color: darkred;" href="#" id="btn-dar-lance-'.$id_unico.'">Excluido</a>
+
+                                    <div class="popup-container popup-container-recusa" id="popup-lance-'.$id_unico.'" style="display: none;">
+                                        <div class="popup-content">
+                                            <span id="close-popup-'.$id_unico.'" class="close-popup">&times;</span>
+                                            <label for="motivo-recusa">Motivo da Exclusão</label>
+                                            <p style="background-color: #fff0ce;" class="popup-motivo-recusa">' . $recusa . '</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", function () {
+                                        const popup = document.getElementById("popup-lance-'.$id_unico.'");
+                                        const closeBtn = document.getElementById("close-popup-'.$id_unico.'");
+                                        const openBtn = document.getElementById("btn-dar-lance-'.$id_unico.'");
+
+                                        openBtn.addEventListener("click", function (e) {
+                                            e.preventDefault();
+                                            popup.style.display = "block";
+                                        });
+
+                                        closeBtn.addEventListener("click", function () {
+                                            popup.style.display = "none";
+                                        });
+                                    });
+                                </script> ';
 
                             break;
                         } default: {
@@ -366,8 +457,17 @@
         });
     </script>
 </body>
-</html>
-                <!-- <div class="card">
+</html>             
+<!--
+                <input type="number" id="valor-lance-'.$id_unico.'" step="any" disabled style="background-color:#fff0ce;" value="'. $valor_leilao .'">
+
+                <input type="tel" id="contato-lance-'.$id_unico.'" disabled value="'. $contato_leilao .'" style="background-color:#fff0ce;">
+
+                <textarea id="observacoes-lance-'.$id_unico.'" rows="4" cols="30" disabled>'. $observacoes_leilao .'</textarea>
+
+
+
+                 <div class="card">
                     <div class="inner-card">
                         <figure style="width: 250px; height: 150px">
                             <img src="https://cabralmotor.fbitsstatic.net/img/p/cg-160-titan-70286/257551-6.jpg?w=1000&h=1000&v=202504071324&qs=ignore" alt="">
