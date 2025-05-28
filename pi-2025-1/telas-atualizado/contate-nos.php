@@ -19,6 +19,27 @@
     $nome_usuario = $_SESSION['nome-usuario'];
     $primeiro_nome = explode(' ', trim($nome_usuario))[0];
 
+    if ($_SERVER['REQUEST_METHOD'] == "POST") {
+        if (empty(trim($_POST['mensagem']))) {
+            $_SESSION['mensagem-vazia'] = "<p><i class='material-icons'>error</i> O campo de mensagem não pode ser enviado vazio</p>";
+    
+            header('Location: ' . $_SERVER['PHP_SELF']);
+            exit;
+        }
+        
+        $mensagem = trim($_POST['mensagem']);
+    
+        $stmt = $conn->prepare("INSERT INTO mensagem (ID_USUARIO, MENSAGEM) VALUES (?, ?)");
+        $stmt->bind_param("is", $id_usuario ,$mensagem);
+        $stmt->execute();
+        $stmt->close();
+        $conn->close();
+    
+        $_SESSION['mensagem-sucesso'] = "<p><i class='material-icons'>check_circle</i> Mensagem enviada com sucesso</p>";
+    
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -105,11 +126,52 @@
             </ul>
         </nav>
         <section class="main-content">
-            <div class="entre-em-contato">
+            <form action="<?=$_SERVER['PHP_SELF']?>" method="POST" class="entre-em-contato">
                 <h2>Entre em contato com a gente</h2>
                 <div class="descricao-mensagem-enviar">
                     <p><span>Descrição:</span> Lorem ipsum dolor, sit amet consectetur adipisicing elit. Accusantium at modi, neque facilis saepe tempora! Est rem distinctio minus asperiores ducimus sapiente beatae tempora blanditiis temporibus, mollitia recusandae dolor sunt ipsum alias dolore. Aliquam provident nesciunt omnis non laboriosam debitis saepe assumenda enim velit voluptatum, in porro maxime voluptates cupiditate asperiores molestiae accusantium. Quas sint facere dignissimos impedit eveniet sed, illo voluptates totam reiciendis dolorum natus hic est, odit error omnis unde eum numquam tempore? Minus iste, eum accusantium soluta debitis inventore facere doloribus sapiente rerum consequuntur, perspiciatis repudiandae perferendis quia unde ex quibusdam corrupti. Perferendis officiis maxime id impedit.</p>
                     <div class="mensagem">
+                        <?php 
+                            if (isset($_SESSION['mensagem-vazia'])) {
+                                ?>
+                                <div class="mensagem-erro" id="mensagem-erro" style="margin-top: -10px;">
+                                    <?=$_SESSION['mensagem-vazia']?>
+                                </div>
+                                    <script>
+                                        // Oculta a mensagem após 4 segundos
+                                        setTimeout(function() {
+                                            const msg = document.getElementById('mensagem-erro');
+                                            if (msg) {
+                                                msg.style.transition = 'opacity 0.5s ease';
+                                                msg.style.opacity = '0';
+                                                setTimeout(() => msg.remove(), 500); // Remove do DOM após o fade-out
+                                            }
+                                        }, 4000);
+                                    </script>
+                                <?php
+                                unset($_SESSION['mensagem-vazia']);
+                            }
+
+                            if (isset($_SESSION['mensagem-sucesso'])) {
+                                ?>
+                                <div class="mensagem-sucesso" id="mensagem-sucesso" style="margin-top: -10px;">
+                                    <?=$_SESSION['mensagem-sucesso']?>
+                                </div>
+                                    <script>
+                                        // Oculta a mensagem após 4 segundos
+                                        setTimeout(function() {
+                                            const msg = document.getElementById('mensagem-sucesso');
+                                            if (msg) {
+                                                msg.style.transition = 'opacity 0.5s ease';
+                                                msg.style.opacity = '0';
+                                                setTimeout(() => msg.remove(), 500); // Remove do DOM após o fade-out
+                                            }
+                                        }, 4000);
+                                    </script>
+                                <?php
+                                unset($_SESSION['mensagem-sucesso']);
+                            }
+                        ?>
                         <label for="mensagem">Envie sua mensagem aqui</label>
                         <textarea name="mensagem" id="mensagem"></textarea>
                     </div>
@@ -117,7 +179,7 @@
                         <button type="submit" class="enviar-cadastro" id="enviar-contato">Enviar</button>
                     </div>
                 </div>
-            </div>
+            </form>
         </section>
     </main>
 </body>

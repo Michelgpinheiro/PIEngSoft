@@ -22,12 +22,13 @@
         $id_produto = $_GET['id'];
         $_SESSION['produto-id'] = $id_produto;
 
-        $stmt_produto = $conn->prepare("SELECT NOME FROM produto WHERE ID = ?");
+        $stmt_produto = $conn->prepare("SELECT NOME, LANCE_INICIAL FROM produto WHERE ID = ?");
         $stmt_produto->bind_param("i", $id_produto);
         $stmt_produto->execute();
         $result = $stmt_produto->get_result();
         if ($row = $result->fetch_assoc()) {
             $nome_produto = $row['NOME'];
+            $lance = $row['LANCE_INICIAL'];
         }
         $stmt_produto->close();
     }
@@ -42,17 +43,27 @@
         // Verifica se pelo menos 1 imagem foi enviada
         if (!isset($_FILES['foto1']) || $_FILES['foto1']['error'] !== UPLOAD_ERR_OK) {
             $_SESSION['foto-nao-definida'] = "<p><i class='material-icons'>warning</i> Anexe pelo menos uma foto antes de prosseguir</p>";
-            header('Location: ' . $_SERVER['PHP_SELF']);
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $id_produto);
             exit;
         }
 
         // Dados do formulário
+        $inicio = $_POST['inicio'] ?? '';
+        $final = $_POST['final'] ?? '';
+        $data_inicio = new DateTime($inicio);
+        $data_fim = new DateTime($final);
+
+        if ($data_inicio >= $data_fim) {
+            $_SESSION['ini-fim-invalidas'] = "<p><i class='material-icons'>warning</i> A data e horário final do leilão deve ser posterior ao inicial</p>";
+
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $id_produto);
+            exit;
+        }
+
         $titulo = $_POST['nome'] ?? '';
         $pracas = $_POST['pracas'] ?? '';
         $reducao = $_POST['reducao'] ?? '';
         $valor_incremento = $_POST['valorincremento'] ?? '';
-        $inicio = $_POST['inicio'] ?? '';
-        $final = $_POST['final'] ?? '';
         $diferenca_dias = $_POST['diferenca-dias'] ?? '';
         $contato = $_POST['contato'] ?? '';
         $observacoes = $_POST['observacoes'] ?? '';
@@ -76,10 +87,10 @@
                     if (move_uploaded_file($tmp, $destino)) {
                         $caminhos[$i] = $destino;
                     } else {
-                        $caminhos[$i] = null;
+                        $caminhos[$i] = "imagens/leilao/no-image.svg";
                     }
                 } else {
-                    $caminhos[$i] = null;
+                    $caminhos[$i] = "imagens/leilao/no-image.svg";
                 }
             }
 
@@ -100,6 +111,12 @@
             $stmt_produto->execute();
             $stmt_produto->close();
 
+            $tipo_movimentacao = "Solicitação de leilão";
+            $stmt_movimentacao = $conn->prepare("INSERT INTO movimentacao (TIPO_MOVIMENTACAO, ID_USUARIO, VALOR, NOME_PRODUTO) VALUES (?, ?, ?, ?)");
+            $stmt_movimentacao->bind_param("sids", $tipo_movimentacao,$id_usuario, $lance, $nome_produto);
+            $stmt_movimentacao->execute();
+            $stmt_movimentacao->close();
+
             $_SESSION['leilao-analise'] = "<p><i class='material-icons'>check_circle</i>Solicitação de leilão enviada com sucesso, o mesmo será analisado por um moderador antes de ir ao ar</p>";
 
             unset($_SESSION['old'], $_SESSION['produto-id']);
@@ -108,7 +125,7 @@
             exit;
         } else {
             $_SESSION['erro-leiloar'] = "<p><i class='material-icons'>error</i> Ocorreu um erro ao iniciar o leilao</p>";
-            header('Location:' . $_SERVER['PHP_SELF']);
+            header('Location:' . $_SERVER['PHP_SELF'] . '?id=' . $id_produto);
             exit;
         }
 
@@ -170,7 +187,7 @@
                 <li><a href="tela-solicitacao-adm.php" style="font-size: 13px;">Solicitações</a></li>
                 <li><a href="contate-nos-adm.php" style="font-size: 13px;">Contate-nos</a></li>
                 <li><a href="sobre-nos-adm.php">Sobre nós</a></li>
-                <li class="epc"></li>
+                <li class="epc" style="height: 100px;"></li>
                 <li><a href="logout.php" class="sair">Sair</a></li>
 
                 <div id="modalLogout" class="modal">
@@ -207,12 +224,32 @@
         </nav>
         <section class="main-content">
             <div class="categoria-row">
-                <h2 class="tp2">Seus Produtos</h2>
-                <div class="row tp2"></div>
+                <!-- <h2 class="tp2">Seus Produtos</h2>
+                <div class="row tp2"></div> -->
             </div>
-            <form action="tela-produtos-2-adm.php?id=<?=$id_produto?>" method="POST" class="iniciando-leilao cadastro-produtos formulario-cadastros form-cadastros" style="padding-right: 57px;"  enctype="multipart/form-data">
+            <form action="<?=$_SERVER['PHP_SELF']?>?id=<?=$id_produto?>" method="POST" class="iniciando-leilao cadastro-produtos formulario-cadastros form-cadastros" style="padding-right: 57px;"  enctype="multipart/form-data">
                 <h2>Iniciando Leilão</h2>
                 <?php
+
+                    if (isset($_SESSION['ini-fim-invalidas'])) {
+                        ?>
+                        <div class="mensagem-sem-foto" id="mensagem-sem-foto" style="margin-top: 20px;">
+                            <?=$_SESSION['ini-fim-invalidas']?>
+                        </div>
+                            <script>
+                                // Oculta a mensagem após 4 segundos
+                                setTimeout(function() {
+                                    const msg = document.getElementById('mensagem-sem-foto');
+                                    if (msg) {
+                                        msg.style.transition = 'opacity 0.5s ease';
+                                        msg.style.opacity = '0';
+                                        setTimeout(() => msg.remove(), 500); // Remove do DOM após o fade-out
+                                    }
+                                }, 4000);
+                            </script>
+                        <?php
+                        unset($_SESSION['ini-fim-invalidas']);
+                    }
                 
                     if (isset($_SESSION['erro-leiloar'])) {
                         ?>
@@ -259,7 +296,7 @@
                     <div class="nome-imagens-pracas-reducao-valorincremento">
                         <div class="nome">
                             <label for="nome">Nome</label>
-                            <input type="text" name="nome" id="nome" value="<?=$nome_produto?>">
+                            <input type="text" name="nome" id="nome" value="<?=$nome_produto?>" required>
                         </div>
                         <label for="">Imagens</label>
                         <div class="img-prv">
@@ -296,15 +333,20 @@
                             <div class="pracas-reducao-valorincremento">
                                 <div class="pracas">
                                     <label for="pracas">Praças</label>
-                                    <input type="number" name="pracas" id="pracas" max="2">
+                                    <!-- <input type="number" name="pracas" id="pracas" max="2"> -->
+                                    <select name="pracas" id="condicao-select" style="width: fit-content;" required>
+                                        <option value="" <?=!isset($_SESSION['old']['pracas']) ? 'selected' : ''?> disabled></option>
+                                        <option value=1 <?= ($_SESSION['old']['pracas'] ?? '') === 1 ? 'selected' : '' ?>>1</option>
+                                        <option value=2 <?= ($_SESSION['old']['pracas'] ?? '') === 2 ? 'selected' : '' ?>>2</option>
+                                    </select>
                                 </div>
                                 <div class="reducao">
                                     <label for="reducao">Redução (%)</label>
-                                    <input type="number" name="reducao" id="reducao">
+                                    <input type="number" name="reducao" id="reducao" value="<?=$_SESSION['old']['reducao'] ?? ''?>" min="0">
                                 </div>
                                 <div class="valorincremento">
                                     <label for="valorincremento">Valor de incremento</label>
-                                    <input type="number" name="valorincremento" id="valorincremento">
+                                    <input type="number" name="valorincremento" id="valorincremento" value="<?=$_SESSION['old']['valorincremento'] ?? ''?>" min="0">
                                 </div>
                             </div>
                         </div>
@@ -312,15 +354,15 @@
                     <div class="data-horario-inicio-final-diferenca">
                         <div class="d-h-inicio">
                             <label for="inicio">Data/Horário de início</label>
-                            <input type="datetime-local" name="inicio" id="inicio">
+                            <input type="datetime-local" name="inicio" id="inicio" value="<?=$_SESSION['old']['inicio'] ?? ''?>">
                         </div>
                         <div class="d-h-final">
                             <label for="final">Data/Horário do final</label>
-                            <input type="datetime-local" name="final" id="final">
+                            <input type="datetime-local" name="final" id="final" value="<?=$_SESSION['old']['final'] ?? ''?>">
                         </div>
                         <div class="diferenca-dias">
                             <label for="diferenca-dias">Diferença de dias entre praça</label>
-                            <input type="number" name="diferenca-dias" id="diferenca-dias">
+                            <input type="number" name="diferenca-dias" id="diferenca-dias" value="<?=$_SESSION['old']['diferenca-dias'] ?? ''?>">
                         </div>
                     </div>
                 </div>
@@ -328,11 +370,12 @@
                     <div class="observacoes-contato">
                         <div class="observacoes">
                             <label for="observacoes">Observações</label>
-                            <textarea name="observacoes" id="observacoes"></textarea>
+                            <textarea name="observacoes" id="observacoes">
+                                <?=$_SESSION['old']['observacoes'] ?? ''?></textarea>
                         </div>
                         <div class="contato">
                             <label for="contato">Contato</label>
-                            <input type="tel" name="contato" id="contato">
+                            <input type="tel" name="contato" id="contato" value="<?=$_SESSION['old']['contato'] ?? ''?>">
                         </div>
                     </div>
                     <div class="aprova-recusa salvar-cancelar">

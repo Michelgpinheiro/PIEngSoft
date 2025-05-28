@@ -28,8 +28,8 @@
     <title>Categorias</title>
     <link rel="stylesheet" href="css/categorias/-style-categorias.css">
     <link rel="stylesheet" href="css/logout/style-logout.css">
-    <link rel="stylesheet" href="css/estilizacao-geral.css">
-    <link rel="stylesheet" href="css/-estilizacao-geral.css">
+    <link rel="stylesheet" href="css/estilizacao-geral.css?v=<?=time()?>">
+    <link rel="stylesheet" href="css/-estilizacao-geral.css?v=<?=time()?>">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
@@ -109,6 +109,989 @@
                 <h2>Eletrônicos</h2>
                 <div class="row"></div>
             </div>
+            <div class="cards-section-1" style="flex-wrap: wrap; gap: 10px;">
+                
+                <?php 
+                
+                    $stmt = $conn->prepare(
+                        "SELECT l.TITULO AS TITULO, DATE_FORMAT(l.DATA_INICIO, '%Y-%m-%d') AS DATA_INICIO, DATE_FORMAT(l.DATA_FINAL, '%Y-%m-%d') AS DATA_FINAL, l.NUMERO_PARACAS AS PRACAS, l.REDUCAO_PRACA AS REDUCAO, l.VALOR_INCREMENTO AS INCREMENTO, p.FOTO AS FOTO, l.DIFERENCA_PRACA AS DIFERENCA_PRACAS, l.ID AS ID_LEILAO, l.DESCRICAO AS DESCRICAO, u.NOME AS NOME_LEILOEIRO, u.CIDADE AS LOCALIDADE, p.LANCE_INICIAL AS LANCE_INICIAL, p.ID AS ID_PRODUTO, p.STATUS_PRODUTO AS STATUS_PRODUTO, u.ID AS ID_USER FROM leilao AS l
+
+                        INNER JOIN produto AS p ON l.ID_PRODUTO = p.ID
+                        INNER JOIN usuario AS u ON p.ID_USUARIO = u.ID
+
+                        WHERE (p.STATUS_PRODUTO = 2 OR p.STATUS_PRODUTO = 4) AND p.CATEGORIA = 'Eletrônico' AND l.VERIFICADO = 1;
+                    ");
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $stmt->close();
+
+                    if ($result->num_rows === 0) {
+                        echo '
+                        <div class="sem-leilao" style="margin-bottom: 15px;">
+                            <p><i class="material-icons">gavel</i> Não há leilões em andamento no momento nessa categoria</p>
+                        </div>
+                        ';
+                    } else {
+                        while ($row = $result->fetch_array()) {
+                            $id_produto = $row['ID_PRODUTO'];
+                            $id_user = $row['ID_USER'];
+                            $id_leilao = $row['ID_LEILAO'];
+                            $titulo = htmlspecialchars($row['TITULO']);
+                            $data_inicio = $row['DATA_INICIO'];
+                            $data_final = $row['DATA_FINAL'];
+                            $diferenca_dias = $row['DIFERENCA_PRACAS'];
+                            $numero_pracas = $row['PRACAS'];
+                            $reducao_pracas = $row['REDUCAO'];
+                            $lance_inicial = number_format($row['LANCE_INICIAL'],2 , ',', '.');
+                            $valor_incremento = number_format($row['INCREMENTO'],2 ,',', '.');
+                            $foto = $row['FOTO'];
+                            $descricao = htmlspecialchars($row['DESCRICAO']);
+                            $nome_leiloeiro = htmlspecialchars($row['NOME_LEILOEIRO']);
+                            $localidade = htmlspecialchars($row['LOCALIDADE']);
+                            $status_produto = $row['STATUS_PRODUTO'];
+                            $ultimo_lance = '-';
+    
+                            $data_inicio_1a_praca = new DateTime($data_inicio);
+                            $data_fim_1a_praca = new DateTime($data_final);
+    
+                            $diferenca = $data_inicio_1a_praca->diff($data_fim_1a_praca);
+    
+                            // Soma os dias ao fim da 1ª praça
+                            $data_inicio_2a_praca = clone $data_fim_1a_praca;
+                            $data_inicio_2a_praca->modify("+$diferenca_dias days");
+    
+                            $data_fim_2a_praca = clone $data_inicio_2a_praca;
+                            $data_fim_2a_praca->modify("+$diferenca->days days");
+    
+                            $desconto = number_format((float)$lance_inicial - ((float)$lance_inicial * ((float)$reducao_pracas)/100.0), 2, ',', '.');
+    
+                            if ($status_produto == 4) {
+                                $stmt_select = $conn->prepare(
+                                    "SELECT VALOR FROM lancamento
+                                     WHERE ID_PRODUTO = ? AND ID_LEILAO = ?; 
+                                ");
+                                $stmt_select->bind_param("ii", $id_produto, $id_leilao);
+                                $stmt_select->execute();
+                                $result_select = $stmt_select->get_result();
+                                $stmt_select->close();
+    
+                                while ($row_select = $result_select->fetch_assoc()) {
+                                    $ultimo_lance = number_format($row_select['VALOR'], 2, ',', '.');
+                                }
+                            }
+    
+                            if ($id_user !== $id_usuario) {
+                                $botao = '
+                                    <a href="tela-pagamento.php?id='. $id_produto .'">Dar lance</a>
+                                ';
+                            } else {
+                                $botao = '
+                                    <a class="em-leilao" href="#" onclick="return false" style="background-color:grey; border-color: black; color: black
+                                    ;">Em leilão</a>
+                                ';
+                            }
+                            
+                            if ($numero_pracas == 2) {
+                                echo '
+                                
+                                <div class="card">
+                                    <div class="inner-card">
+                                        <figure>
+                                            <img src="' . $foto . '" alt="">
+                                        </figure>
+                                        <h3>'. $titulo .'</h3>
+                                        <div class="card-informations-1">
+                                            <div class="card-info-1">
+                                                <h4>1ª Praça</h4>
+                                                <p><span>Início:</span> '.$data_inicio_1a_praca->format('d/m/Y').'</p>
+                                                <p><span>Fim:</span> '.$data_fim_1a_praca->format('d/m/Y').'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '.$lance_inicial.'</p>
+                                                <p><span>Ultimo lance:</span> R$ '. $ultimo_lance .' </p>
+                                            </div>
+                                        </div>
+                                        <div class="card-informations-row"></div>
+                                        <div class="card-informations-2">
+                                            <div class="card-info-1">
+                                                <h4>2ª Praça</h4>
+                                                <p><span>Início:</span> '. $data_inicio_2a_praca->format('d/m/Y') .'</p>
+                                                <p><span>Fim:</span> '. $data_fim_2a_praca->format('d/m/Y') .'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '. $desconto .'</p>
+                                                <p><span>Ultimo lance:</span> R$ - </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="dar-lance" style: justify-content: center;> '. $botao .' </div>
+                                </div>
+                            
+                                
+                                ';
+                            } else {
+                                    
+                                echo '
+                                
+                                <div class="card">
+                                    <div class="inner-card">
+                                        <figure>
+                                            <img src="'.$foto.'" alt="">
+                                        </figure>
+                                        <h3>'.$titulo.'</h3>
+                                        <div class="card-informations-1">
+                                            <div class="card-info-1">
+                                                <h4>1ª Praça</h4>
+                                                <p><span>Início:</span> '. $data_inicio_1a_praca->format('d/m/Y') .'</p>
+                                                <p><span>Fim:</span> '. $data_fim_1a_praca->format('d/m/Y') .'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '. $lance_inicial .'</p>
+                                                <p><span>Ultimo lance:</span> R$ '. $ultimo_lance .'</p>
+                                            </div>
+                                        </div>
+                                        <div class="card-informations-row"></div>
+                                    </div>
+                                    <div class="dar-lance">
+                                        <div class="dar-lance"> '. $botao .' </div>
+                                    </div>
+                                </div>
+                            
+                                
+                                ';
+    
+                            }
+                        }
+                    }
+                
+                ?>
+            </div>
+            <div class="categoria-row">
+                <h2>Veículos</h2>
+                <div class="row"></div>
+            </div>
+            <div class="cards-section-1" style="flex-wrap: wrap; gap: 10px;">
+                
+                <?php 
+                
+                    $stmt = $conn->prepare(
+                        "SELECT l.TITULO AS TITULO, DATE_FORMAT(l.DATA_INICIO, '%Y-%m-%d') AS DATA_INICIO, DATE_FORMAT(l.DATA_FINAL, '%Y-%m-%d') AS DATA_FINAL, l.NUMERO_PARACAS AS PRACAS, l.REDUCAO_PRACA AS REDUCAO, l.VALOR_INCREMENTO AS INCREMENTO, p.FOTO AS FOTO, l.DIFERENCA_PRACA AS DIFERENCA_PRACAS, l.ID AS ID_LEILAO, l.DESCRICAO AS DESCRICAO, u.NOME AS NOME_LEILOEIRO, u.CIDADE AS LOCALIDADE, p.LANCE_INICIAL AS LANCE_INICIAL, p.ID AS ID_PRODUTO, p.STATUS_PRODUTO AS STATUS_PRODUTO, u.ID AS ID_USER FROM leilao AS l
+
+                        INNER JOIN produto AS p ON l.ID_PRODUTO = p.ID
+                        INNER JOIN usuario AS u ON p.ID_USUARIO = u.ID
+
+                        WHERE (p.STATUS_PRODUTO = 2 OR p.STATUS_PRODUTO = 4) AND p.CATEGORIA = 'Veículo' AND l.VERIFICADO = 1;
+                    ");
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $stmt->close();
+
+                    if ($result->num_rows === 0) {
+                        echo '
+                        <div class="sem-leilao" style="margin-bottom: 15px;">
+                            <p><i class="material-icons">gavel</i> Não há leilões em andamento no momento nessa categoria</p>
+                        </div>
+                        ';
+                    } else {
+                        while ($row = $result->fetch_array()) {
+                            $id_produto = $row['ID_PRODUTO'];
+                            $id_user = $row['ID_USER'];
+                            $id_leilao = $row['ID_LEILAO'];
+                            $titulo = htmlspecialchars($row['TITULO']);
+                            $data_inicio = $row['DATA_INICIO'];
+                            $data_final = $row['DATA_FINAL'];
+                            $diferenca_dias = $row['DIFERENCA_PRACAS'];
+                            $numero_pracas = $row['PRACAS'];
+                            $reducao_pracas = $row['REDUCAO'];
+                            $lance_inicial = number_format($row['LANCE_INICIAL'],2 , ',', '.');
+                            $valor_incremento = number_format($row['INCREMENTO'],2 ,',', '.');
+                            $foto = $row['FOTO'];
+                            $descricao = htmlspecialchars($row['DESCRICAO']);
+                            $nome_leiloeiro = htmlspecialchars($row['NOME_LEILOEIRO']);
+                            $localidade = htmlspecialchars($row['LOCALIDADE']);
+                            $status_produto = $row['STATUS_PRODUTO'];
+                            $ultimo_lance = '-';
+    
+                            $data_inicio_1a_praca = new DateTime($data_inicio);
+                            $data_fim_1a_praca = new DateTime($data_final);
+    
+                            $diferenca = $data_inicio_1a_praca->diff($data_fim_1a_praca);
+    
+                            // Soma os dias ao fim da 1ª praça
+                            $data_inicio_2a_praca = clone $data_fim_1a_praca;
+                            $data_inicio_2a_praca->modify("+$diferenca_dias days");
+    
+                            $data_fim_2a_praca = clone $data_inicio_2a_praca;
+                            $data_fim_2a_praca->modify("+$diferenca->days days");
+    
+                            $desconto = number_format((float)$lance_inicial - ((float)$lance_inicial * ((float)$reducao_pracas)/100.0), 2, ',', '.');
+    
+                            if ($status_produto == 4) {
+                                $stmt_select = $conn->prepare(
+                                    "SELECT VALOR FROM lancamento
+                                     WHERE ID_PRODUTO = ? AND ID_LEILAO = ?; 
+                                ");
+                                $stmt_select->bind_param("ii", $id_produto, $id_leilao);
+                                $stmt_select->execute();
+                                $result_select = $stmt_select->get_result();
+                                $stmt_select->close();
+    
+                                while ($row_select = $result_select->fetch_assoc()) {
+                                    $ultimo_lance = number_format($row_select['VALOR'], 2, ',', '.');
+                                }
+                            }
+    
+                            if ($id_user !== $id_usuario) {
+                                $botao = '
+                                    <a href="tela-pagamento.php?id='. $id_produto .'">Dar lance</a>
+                                ';
+                            } else {
+                                $botao = '
+                                    <a class="em-leilao" href="#" onclick="return false" style="background-color:grey; border-color: black; color: black
+                                    ;">Em leilão</a>
+                                ';
+                            }
+                            
+                            if ($numero_pracas == 2) {
+                                echo '
+                                
+                                <div class="card">
+                                    <div class="inner-card">
+                                        <figure>
+                                            <img src="' . $foto . '" alt="">
+                                        </figure>
+                                        <h3>'. $titulo .'</h3>
+                                        <div class="card-informations-1">
+                                            <div class="card-info-1">
+                                                <h4>1ª Praça</h4>
+                                                <p><span>Início:</span> '.$data_inicio_1a_praca->format('d/m/Y').'</p>
+                                                <p><span>Fim:</span> '.$data_fim_1a_praca->format('d/m/Y').'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '.$lance_inicial.'</p>
+                                                <p><span>Ultimo lance:</span> R$ '. $ultimo_lance .' </p>
+                                            </div>
+                                        </div>
+                                        <div class="card-informations-row"></div>
+                                        <div class="card-informations-2">
+                                            <div class="card-info-1">
+                                                <h4>2ª Praça</h4>
+                                                <p><span>Início:</span> '. $data_inicio_2a_praca->format('d/m/Y') .'</p>
+                                                <p><span>Fim:</span> '. $data_fim_2a_praca->format('d/m/Y') .'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '. $desconto .'</p>
+                                                <p><span>Ultimo lance:</span> R$ - </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="dar-lance"> '. $botao .' </div>
+                                </div>
+                            
+                                
+                                ';
+                            } else {
+                                    
+                                echo '
+                                
+                                <div class="card">
+                                    <div class="inner-card">
+                                        <figure>
+                                            <img src="'.$foto.'" alt="">
+                                        </figure>
+                                        <h3>'.$titulo.'</h3>
+                                        <div class="card-informations-1">
+                                            <div class="card-info-1">
+                                                <h4>1ª Praça</h4>
+                                                <p><span>Início:</span> '. $data_inicio_1a_praca->format('d/m/Y') .'</p>
+                                                <p><span>Fim:</span> '. $data_fim_1a_praca->format('d/m/Y') .'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '. $lance_inicial .'</p>
+                                                <p><span>Ultimo lance:</span> R$ '. $ultimo_lance .'</p>
+                                            </div>
+                                        </div>
+                                        <div class="card-informations-row"></div>
+                                    </div>
+                                    <div class="dar-lance">
+                                        <div class="dar-lance"> '. $botao .' </div>
+                                    </div>
+                                </div>
+                            
+                                
+                                ';
+    
+                            }
+                        }
+                    }
+                
+                ?>
+            </div>
+            <div class="categoria-row">
+                <h2>Antiguidades</h2>
+                <div class="row"></div>
+            </div>
+            <div class="cards-section-1" style="flex-wrap: wrap; gap: 10px;">
+                
+                <?php 
+                
+                    $stmt = $conn->prepare(
+                        "SELECT l.TITULO AS TITULO, DATE_FORMAT(l.DATA_INICIO, '%Y-%m-%d') AS DATA_INICIO, DATE_FORMAT(l.DATA_FINAL, '%Y-%m-%d') AS DATA_FINAL, l.NUMERO_PARACAS AS PRACAS, l.REDUCAO_PRACA AS REDUCAO, l.VALOR_INCREMENTO AS INCREMENTO, p.FOTO AS FOTO, l.DIFERENCA_PRACA AS DIFERENCA_PRACAS, l.ID AS ID_LEILAO, l.DESCRICAO AS DESCRICAO, u.NOME AS NOME_LEILOEIRO, u.CIDADE AS LOCALIDADE, p.LANCE_INICIAL AS LANCE_INICIAL, p.ID AS ID_PRODUTO, p.STATUS_PRODUTO AS STATUS_PRODUTO, u.ID AS ID_USER FROM leilao AS l
+
+                        INNER JOIN produto AS p ON l.ID_PRODUTO = p.ID
+                        INNER JOIN usuario AS u ON p.ID_USUARIO = u.ID
+
+                        WHERE (p.STATUS_PRODUTO = 2 OR p.STATUS_PRODUTO = 4) AND p.CATEGORIA = 'Antiguidade' AND l.VERIFICADO = 1;
+                    ");
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $stmt->close();
+
+                    if ($result->num_rows === 0) {
+                        echo '
+                        <div class="sem-leilao" style="margin-bottom: 15px;">
+                            <p><i class="material-icons">gavel</i> Não há leilões em andamento no momento nessa categoria</p>
+                        </div>
+                        ';
+                    } else {
+                        while ($row = $result->fetch_array()) {
+                            $id_produto = $row['ID_PRODUTO'];
+                            $id_user = $row['ID_USER'];
+                            $id_leilao = $row['ID_LEILAO'];
+                            $titulo = htmlspecialchars($row['TITULO']);
+                            $data_inicio = $row['DATA_INICIO'];
+                            $data_final = $row['DATA_FINAL'];
+                            $diferenca_dias = $row['DIFERENCA_PRACAS'];
+                            $numero_pracas = $row['PRACAS'];
+                            $reducao_pracas = $row['REDUCAO'];
+                            $lance_inicial = number_format($row['LANCE_INICIAL'],2 , ',', '.');
+                            $valor_incremento = number_format($row['INCREMENTO'],2 ,',', '.');
+                            $foto = $row['FOTO'];
+                            $descricao = htmlspecialchars($row['DESCRICAO']);
+                            $nome_leiloeiro = htmlspecialchars($row['NOME_LEILOEIRO']);
+                            $localidade = htmlspecialchars($row['LOCALIDADE']);
+                            $status_produto = $row['STATUS_PRODUTO'];
+                            $ultimo_lance = '-';
+    
+                            $data_inicio_1a_praca = new DateTime($data_inicio);
+                            $data_fim_1a_praca = new DateTime($data_final);
+    
+                            $diferenca = $data_inicio_1a_praca->diff($data_fim_1a_praca);
+    
+                            // Soma os dias ao fim da 1ª praça
+                            $data_inicio_2a_praca = clone $data_fim_1a_praca;
+                            $data_inicio_2a_praca->modify("+$diferenca_dias days");
+    
+                            $data_fim_2a_praca = clone $data_inicio_2a_praca;
+                            $data_fim_2a_praca->modify("+$diferenca->days days");
+    
+                            $desconto = number_format((float)$lance_inicial - ((float)$lance_inicial * ((float)$reducao_pracas)/100.0), 2, ',', '.');
+    
+                            if ($status_produto == 4) {
+                                $stmt_select = $conn->prepare(
+                                    "SELECT VALOR FROM lancamento
+                                     WHERE ID_PRODUTO = ? AND ID_LEILAO = ?; 
+                                ");
+                                $stmt_select->bind_param("ii", $id_produto, $id_leilao);
+                                $stmt_select->execute();
+                                $result_select = $stmt_select->get_result();
+                                $stmt_select->close();
+    
+                                while ($row_select = $result_select->fetch_assoc()) {
+                                    $ultimo_lance = number_format($row_select['VALOR'], 2, ',', '.');
+                                }
+                            }
+    
+                            if ($id_user !== $id_usuario) {
+                                $botao = '
+                                    <a href="tela-pagamento.php?id='. $id_produto .'">Dar lance</a>
+                                ';
+                            } else {
+                                $botao = '
+                                    <a class="em-leilao" href="#" onclick="return false" style="background-color:grey; border-color: black; color: black
+                                    ;">Em leilão</a>
+                                ';
+                            }
+                            
+                            if ($numero_pracas == 2) {
+                                echo '
+                                
+                                <div class="card">
+                                    <div class="inner-card">
+                                        <figure>
+                                            <img src="' . $foto . '" alt="">
+                                        </figure>
+                                        <h3>'. $titulo .'</h3>
+                                        <div class="card-informations-1">
+                                            <div class="card-info-1">
+                                                <h4>1ª Praça</h4>
+                                                <p><span>Início:</span> '.$data_inicio_1a_praca->format('d/m/Y').'</p>
+                                                <p><span>Fim:</span> '.$data_fim_1a_praca->format('d/m/Y').'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '.$lance_inicial.'</p>
+                                                <p><span>Ultimo lance:</span> R$ '. $ultimo_lance .' </p>
+                                            </div>
+                                        </div>
+                                        <div class="card-informations-row"></div>
+                                        <div class="card-informations-2">
+                                            <div class="card-info-1">
+                                                <h4>2ª Praça</h4>
+                                                <p><span>Início:</span> '. $data_inicio_2a_praca->format('d/m/Y') .'</p>
+                                                <p><span>Fim:</span> '. $data_fim_2a_praca->format('d/m/Y') .'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '. $desconto .'</p>
+                                                <p><span>Ultimo lance:</span> R$ - </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="dar-lance"> '. $botao .' </div>
+                                </div>
+                            
+                                
+                                ';
+                            } else {
+                                    
+                                echo '
+                                
+                                <div class="card">
+                                    <div class="inner-card">
+                                        <figure>
+                                            <img src="'.$foto.'" alt="">
+                                        </figure>
+                                        <h3>'.$titulo.'</h3>
+                                        <div class="card-informations-1">
+                                            <div class="card-info-1">
+                                                <h4>1ª Praça</h4>
+                                                <p><span>Início:</span> '. $data_inicio_1a_praca->format('d/m/Y') .'</p>
+                                                <p><span>Fim:</span> '. $data_fim_1a_praca->format('d/m/Y') .'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '. $lance_inicial .'</p>
+                                                <p><span>Ultimo lance:</span> R$ '. $ultimo_lance .'</p>
+                                            </div>
+                                        </div>
+                                        <div class="card-informations-row"></div>
+                                    </div>
+                                    <div class="dar-lance">
+                                        <div class="dar-lance"> '. $botao .' </div>
+                                    </div>
+                                </div>
+                            
+                                
+                                ';
+    
+                            }
+                        }
+                    }
+                
+                ?>
+            </div>
+            <div class="categoria-row">
+                <h2>Roupas</h2>
+                <div class="row"></div>
+            </div>
+            <div class="cards-section-1" style="flex-wrap: wrap; gap: 10px;">
+                
+                <?php 
+                
+                    $stmt = $conn->prepare(
+                        "SELECT l.TITULO AS TITULO, DATE_FORMAT(l.DATA_INICIO, '%Y-%m-%d') AS DATA_INICIO, DATE_FORMAT(l.DATA_FINAL, '%Y-%m-%d') AS DATA_FINAL, l.NUMERO_PARACAS AS PRACAS, l.REDUCAO_PRACA AS REDUCAO, l.VALOR_INCREMENTO AS INCREMENTO, p.FOTO AS FOTO, l.DIFERENCA_PRACA AS DIFERENCA_PRACAS, l.ID AS ID_LEILAO, l.DESCRICAO AS DESCRICAO, u.NOME AS NOME_LEILOEIRO, u.CIDADE AS LOCALIDADE, p.LANCE_INICIAL AS LANCE_INICIAL, p.ID AS ID_PRODUTO, p.STATUS_PRODUTO AS STATUS_PRODUTO, u.ID AS ID_USER FROM leilao AS l
+
+                        INNER JOIN produto AS p ON l.ID_PRODUTO = p.ID
+                        INNER JOIN usuario AS u ON p.ID_USUARIO = u.ID
+
+                        WHERE (p.STATUS_PRODUTO = 2 OR p.STATUS_PRODUTO = 4) AND p.CATEGORIA = 'Roupa' AND l.VERIFICADO = 1;
+                    ");
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $stmt->close();
+
+                    if ($result->num_rows === 0) {
+                        echo '
+                        <div class="sem-leilao" style="margin-bottom: 15px;">
+                            <p><i class="material-icons">gavel</i> Não há leilões em andamento no momento nessa categoria</p>
+                        </div>
+                        ';
+                    } else {
+                        while ($row = $result->fetch_array()) {
+                            $id_produto = $row['ID_PRODUTO'];
+                            $id_user = $row['ID_USER'];
+                            $id_leilao = $row['ID_LEILAO'];
+                            $titulo = htmlspecialchars($row['TITULO']);
+                            $data_inicio = $row['DATA_INICIO'];
+                            $data_final = $row['DATA_FINAL'];
+                            $diferenca_dias = $row['DIFERENCA_PRACAS'];
+                            $numero_pracas = $row['PRACAS'];
+                            $reducao_pracas = $row['REDUCAO'];
+                            $lance_inicial = number_format($row['LANCE_INICIAL'],2 , ',', '.');
+                            $valor_incremento = number_format($row['INCREMENTO'],2 ,',', '.');
+                            $foto = $row['FOTO'];
+                            $descricao = htmlspecialchars($row['DESCRICAO']);
+                            $nome_leiloeiro = htmlspecialchars($row['NOME_LEILOEIRO']);
+                            $localidade = htmlspecialchars($row['LOCALIDADE']);
+                            $status_produto = $row['STATUS_PRODUTO'];
+                            $ultimo_lance = '-';
+    
+                            $data_inicio_1a_praca = new DateTime($data_inicio);
+                            $data_fim_1a_praca = new DateTime($data_final);
+    
+                            $diferenca = $data_inicio_1a_praca->diff($data_fim_1a_praca);
+    
+                            // Soma os dias ao fim da 1ª praça
+                            $data_inicio_2a_praca = clone $data_fim_1a_praca;
+                            $data_inicio_2a_praca->modify("+$diferenca_dias days");
+    
+                            $data_fim_2a_praca = clone $data_inicio_2a_praca;
+                            $data_fim_2a_praca->modify("+$diferenca->days days");
+    
+                            $desconto = number_format((float)$lance_inicial - ((float)$lance_inicial * ((float)$reducao_pracas)/100.0), 2, ',', '.');
+    
+                            if ($status_produto == 4) {
+                                $stmt_select = $conn->prepare(
+                                    "SELECT VALOR FROM lancamento
+                                     WHERE ID_PRODUTO = ? AND ID_LEILAO = ?; 
+                                ");
+                                $stmt_select->bind_param("ii", $id_produto, $id_leilao);
+                                $stmt_select->execute();
+                                $result_select = $stmt_select->get_result();
+                                $stmt_select->close();
+    
+                                while ($row_select = $result_select->fetch_assoc()) {
+                                    $ultimo_lance = number_format($row_select['VALOR'], 2, ',', '.');
+                                }
+                            }
+    
+                            if ($id_user !== $id_usuario) {
+                                $botao = '
+                                    <a href="tela-pagamento.php?id='. $id_produto .'">Dar lance</a>
+                                ';
+                            } else {
+                                $botao = '
+                                    <a class="em-leilao" href="#" onclick="return false" style="background-color:grey; border-color: black; color: black
+                                    ;">Em leilão</a>
+                                ';
+                            }
+                            
+                            if ($numero_pracas == 2) {
+                                echo '
+                                
+                                <div class="card">
+                                    <div class="inner-card">
+                                        <figure>
+                                            <img src="' . $foto . '" alt="">
+                                        </figure>
+                                        <h3>'. $titulo .'</h3>
+                                        <div class="card-informations-1">
+                                            <div class="card-info-1">
+                                                <h4>1ª Praça</h4>
+                                                <p><span>Início:</span> '.$data_inicio_1a_praca->format('d/m/Y').'</p>
+                                                <p><span>Fim:</span> '.$data_fim_1a_praca->format('d/m/Y').'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '.$lance_inicial.'</p>
+                                                <p><span>Ultimo lance:</span> R$ '. $ultimo_lance .' </p>
+                                            </div>
+                                        </div>
+                                        <div class="card-informations-row"></div>
+                                        <div class="card-informations-2">
+                                            <div class="card-info-1">
+                                                <h4>2ª Praça</h4>
+                                                <p><span>Início:</span> '. $data_inicio_2a_praca->format('d/m/Y') .'</p>
+                                                <p><span>Fim:</span> '. $data_fim_2a_praca->format('d/m/Y') .'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '. $desconto .'</p>
+                                                <p><span>Ultimo lance:</span> R$ - </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="dar-lance"> '. $botao .' </div>
+                                </div>
+                            
+                                
+                                ';
+                            } else {
+                                    
+                                echo '
+                                
+                                <div class="card">
+                                    <div class="inner-card">
+                                        <figure>
+                                            <img src="'.$foto.'" alt="">
+                                        </figure>
+                                        <h3>'.$titulo.'</h3>
+                                        <div class="card-informations-1">
+                                            <div class="card-info-1">
+                                                <h4>1ª Praça</h4>
+                                                <p><span>Início:</span> '. $data_inicio_1a_praca->format('d/m/Y') .'</p>
+                                                <p><span>Fim:</span> '. $data_fim_1a_praca->format('d/m/Y') .'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '. $lance_inicial .'</p>
+                                                <p><span>Ultimo lance:</span> R$ '. $ultimo_lance .'</p>
+                                            </div>
+                                        </div>
+                                        <div class="card-informations-row"></div>
+                                    </div>
+                                    <div class="dar-lance">
+                                        <div class="dar-lance"> '. $botao .' </div>
+                                    </div>
+                                </div>
+                            
+                                
+                                ';
+    
+                            }
+                        }
+                    }
+                
+                ?>
+            </div>
+            <div class="categoria-row">
+                <h2>Móvel</h2>
+                <div class="row"></div>
+            </div>
+            <div class="cards-section-1" style="flex-wrap: wrap; gap: 10px;">
+                
+                <?php 
+                
+                    $stmt = $conn->prepare(
+                        "SELECT l.TITULO AS TITULO, DATE_FORMAT(l.DATA_INICIO, '%Y-%m-%d') AS DATA_INICIO, DATE_FORMAT(l.DATA_FINAL, '%Y-%m-%d') AS DATA_FINAL, l.NUMERO_PARACAS AS PRACAS, l.REDUCAO_PRACA AS REDUCAO, l.VALOR_INCREMENTO AS INCREMENTO, p.FOTO AS FOTO, l.DIFERENCA_PRACA AS DIFERENCA_PRACAS, l.ID AS ID_LEILAO, l.DESCRICAO AS DESCRICAO, u.NOME AS NOME_LEILOEIRO, u.CIDADE AS LOCALIDADE, p.LANCE_INICIAL AS LANCE_INICIAL, p.ID AS ID_PRODUTO, p.STATUS_PRODUTO AS STATUS_PRODUTO, u.ID AS ID_USER FROM leilao AS l
+
+                        INNER JOIN produto AS p ON l.ID_PRODUTO = p.ID
+                        INNER JOIN usuario AS u ON p.ID_USUARIO = u.ID
+
+                        WHERE (p.STATUS_PRODUTO = 2 OR p.STATUS_PRODUTO = 4) AND p.CATEGORIA = 'Móvel' AND l.VERIFICADO = 1;
+                    ");
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $stmt->close();
+
+                    if ($result->num_rows === 0) {
+                        echo '
+                        <div class="sem-leilao" style="margin-bottom: 15px;">
+                            <p><i class="material-icons">gavel</i> Não há leilões em andamento no momento nessa categoria</p>
+                        </div>
+                        ';
+                    } else {
+                        while ($row = $result->fetch_array()) {
+                            $id_produto = $row['ID_PRODUTO'];
+                            $id_user = $row['ID_USER'];
+                            $id_leilao = $row['ID_LEILAO'];
+                            $titulo = htmlspecialchars($row['TITULO']);
+                            $data_inicio = $row['DATA_INICIO'];
+                            $data_final = $row['DATA_FINAL'];
+                            $diferenca_dias = $row['DIFERENCA_PRACAS'];
+                            $numero_pracas = $row['PRACAS'];
+                            $reducao_pracas = $row['REDUCAO'];
+                            $lance_inicial = number_format($row['LANCE_INICIAL'],2 , ',', '.');
+                            $valor_incremento = number_format($row['INCREMENTO'],2 ,',', '.');
+                            $foto = $row['FOTO'];
+                            $descricao = htmlspecialchars($row['DESCRICAO']);
+                            $nome_leiloeiro = htmlspecialchars($row['NOME_LEILOEIRO']);
+                            $localidade = htmlspecialchars($row['LOCALIDADE']);
+                            $status_produto = $row['STATUS_PRODUTO'];
+                            $ultimo_lance = '-';
+    
+                            $data_inicio_1a_praca = new DateTime($data_inicio);
+                            $data_fim_1a_praca = new DateTime($data_final);
+    
+                            $diferenca = $data_inicio_1a_praca->diff($data_fim_1a_praca);
+    
+                            // Soma os dias ao fim da 1ª praça
+                            $data_inicio_2a_praca = clone $data_fim_1a_praca;
+                            $data_inicio_2a_praca->modify("+$diferenca_dias days");
+    
+                            $data_fim_2a_praca = clone $data_inicio_2a_praca;
+                            $data_fim_2a_praca->modify("+$diferenca->days days");
+    
+                            $desconto = number_format((float)$lance_inicial - ((float)$lance_inicial * ((float)$reducao_pracas)/100.0), 2, ',', '.');
+    
+                            if ($status_produto == 4) {
+                                $stmt_select = $conn->prepare(
+                                    "SELECT VALOR FROM lancamento
+                                     WHERE ID_PRODUTO = ? AND ID_LEILAO = ?; 
+                                ");
+                                $stmt_select->bind_param("ii", $id_produto, $id_leilao);
+                                $stmt_select->execute();
+                                $result_select = $stmt_select->get_result();
+                                $stmt_select->close();
+    
+                                while ($row_select = $result_select->fetch_assoc()) {
+                                    $ultimo_lance = number_format($row_select['VALOR'], 2, ',', '.');
+                                }
+                            }
+    
+                            if ($id_user !== $id_usuario) {
+                                $botao = '
+                                    <a href="tela-pagamento.php?id='. $id_produto .'">Dar lance</a>
+                                ';
+                            } else {
+                                $botao = '
+                                    <a class="em-leilao" href="#" onclick="return false" style="background-color:grey; border-color: black; color: black
+                                    ;">Em leilão</a>
+                                ';
+                            }
+                            
+                            if ($numero_pracas == 2) {
+                                echo '
+                                
+                                <div class="card">
+                                    <div class="inner-card">
+                                        <figure>
+                                            <img src="' . $foto . '" alt="">
+                                        </figure>
+                                        <h3>'. $titulo .'</h3>
+                                        <div class="card-informations-1">
+                                            <div class="card-info-1">
+                                                <h4>1ª Praça</h4>
+                                                <p><span>Início:</span> '.$data_inicio_1a_praca->format('d/m/Y').'</p>
+                                                <p><span>Fim:</span> '.$data_fim_1a_praca->format('d/m/Y').'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '.$lance_inicial.'</p>
+                                                <p><span>Ultimo lance:</span> R$ '. $ultimo_lance .' </p>
+                                            </div>
+                                        </div>
+                                        <div class="card-informations-row"></div>
+                                        <div class="card-informations-2">
+                                            <div class="card-info-1">
+                                                <h4>2ª Praça</h4>
+                                                <p><span>Início:</span> '. $data_inicio_2a_praca->format('d/m/Y') .'</p>
+                                                <p><span>Fim:</span> '. $data_fim_2a_praca->format('d/m/Y') .'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '. $desconto .'</p>
+                                                <p><span>Ultimo lance:</span> R$ - </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="dar-lance"> '. $botao .' </div>
+                                </div>
+                            
+                                
+                                ';
+                            } else {
+                                    
+                                echo '
+                                
+                                <div class="card">
+                                    <div class="inner-card">
+                                        <figure>
+                                            <img src="'.$foto.'" alt="">
+                                        </figure>
+                                        <h3>'.$titulo.'</h3>
+                                        <div class="card-informations-1">
+                                            <div class="card-info-1">
+                                                <h4>1ª Praça</h4>
+                                                <p><span>Início:</span> '. $data_inicio_1a_praca->format('d/m/Y') .'</p>
+                                                <p><span>Fim:</span> '. $data_fim_1a_praca->format('d/m/Y') .'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '. $lance_inicial .'</p>
+                                                <p><span>Ultimo lance:</span> R$ '. $ultimo_lance .'</p>
+                                            </div>
+                                        </div>
+                                        <div class="card-informations-row"></div>
+                                    </div>
+                                    <div class="dar-lance">
+                                        <div class="dar-lance"> '. $botao .' </div>
+                                    </div>
+                                </div>
+                            
+                                
+                                ';
+    
+                            }
+                        }
+                    }
+                
+                ?>
+            </div>
+            <div class="categoria-row">
+                <h2>Outros</h2>
+                <div class="row"></div>
+            </div>
+            <div class="cards-section-1" style="flex-wrap: wrap; gap: 10px;">
+
+                <?php 
+                
+                    $stmt = $conn->prepare(
+                        "SELECT l.TITULO AS TITULO, DATE_FORMAT(l.DATA_INICIO, '%Y-%m-%d') AS DATA_INICIO, DATE_FORMAT(l.DATA_FINAL, '%Y-%m-%d') AS DATA_FINAL, l.NUMERO_PARACAS AS PRACAS, l.REDUCAO_PRACA AS REDUCAO, l.VALOR_INCREMENTO AS INCREMENTO, p.FOTO AS FOTO, l.DIFERENCA_PRACA AS DIFERENCA_PRACAS, l.ID AS ID_LEILAO, l.DESCRICAO AS DESCRICAO, u.NOME AS NOME_LEILOEIRO, u.CIDADE AS LOCALIDADE, p.LANCE_INICIAL AS LANCE_INICIAL, p.ID AS ID_PRODUTO, p.STATUS_PRODUTO AS STATUS_PRODUTO, u.ID AS ID_USER FROM leilao AS l
+
+                        INNER JOIN produto AS p ON l.ID_PRODUTO = p.ID
+                        INNER JOIN usuario AS u ON p.ID_USUARIO = u.ID
+
+                        WHERE (p.STATUS_PRODUTO = 2 OR p.STATUS_PRODUTO = 4) AND p.CATEGORIA = 'Outros' AND l.VERIFICADO = 1;
+                    ");
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $stmt->close();
+
+                    if ($result->num_rows === 0) {
+                        echo '
+                        <div class="sem-leilao" style="margin-bottom: 15px;">
+                            <p><i class="material-icons">gavel</i> Não há leilões em andamento no momento nessa categoria</p>
+                        </div>
+                        ';
+                    } else {
+
+                        while ($row = $result->fetch_array()) {
+                            $id_produto = $row['ID_PRODUTO'];
+                            $id_user = $row['ID_USER'];
+                            $id_leilao = $row['ID_LEILAO'];
+                            $titulo = htmlspecialchars($row['TITULO']);
+                            $data_inicio = $row['DATA_INICIO'];
+                            $data_final = $row['DATA_FINAL'];
+                            $diferenca_dias = $row['DIFERENCA_PRACAS'];
+                            $numero_pracas = $row['PRACAS'];
+                            $reducao_pracas = $row['REDUCAO'];
+                            $lance_inicial = number_format($row['LANCE_INICIAL'],2 , ',', '.');
+                            $valor_incremento = number_format($row['INCREMENTO'],2 ,',', '.');
+                            $foto = $row['FOTO'];
+                            $descricao = htmlspecialchars($row['DESCRICAO']);
+                            $nome_leiloeiro = htmlspecialchars($row['NOME_LEILOEIRO']);
+                            $localidade = htmlspecialchars($row['LOCALIDADE']);
+                            $status_produto = $row['STATUS_PRODUTO'];
+                            $ultimo_lance = '-';
+    
+                            $data_inicio_1a_praca = new DateTime($data_inicio);
+                            $data_fim_1a_praca = new DateTime($data_final);
+    
+                            $diferenca = $data_inicio_1a_praca->diff($data_fim_1a_praca);
+    
+                            // Soma os dias ao fim da 1ª praça
+                            $data_inicio_2a_praca = clone $data_fim_1a_praca;
+                            $data_inicio_2a_praca->modify("+$diferenca_dias days");
+    
+                            $data_fim_2a_praca = clone $data_inicio_2a_praca;
+                            $data_fim_2a_praca->modify("+$diferenca->days days");
+    
+                            $desconto = number_format((float)$lance_inicial - ((float)$lance_inicial * ((float)$reducao_pracas)/100.0), 2, ',', '.');
+    
+                            if ($status_produto == 4) {
+                                $stmt_select = $conn->prepare(
+                                    "SELECT VALOR FROM lancamento
+                                     WHERE ID_PRODUTO = ? AND ID_LEILAO = ?; 
+                                ");
+                                $stmt_select->bind_param("ii", $id_produto, $id_leilao);
+                                $stmt_select->execute();
+                                $result_select = $stmt_select->get_result();
+                                $stmt_select->close();
+    
+                                while ($row_select = $result_select->fetch_assoc()) {
+                                    $ultimo_lance = number_format($row_select['VALOR'], 2, ',', '.');
+                                }
+                            }
+    
+                            if ($id_user !== $id_usuario) {
+                                $botao = '
+                                    <a href="tela-pagamento.php?id='. $id_produto .'">Dar lance</a>
+                                ';
+                            } else {
+                                $botao = '
+                                    <a class="em-leilao" href="#" onclick="return false" style="background-color:grey; border-color: black; color: black
+                                    ;">Em leilão</a>
+                                ';
+                            }
+                            
+                            if ($numero_pracas == 2) {
+                                echo '
+                                
+                                <div class="card">
+                                    <div class="inner-card">
+                                        <figure>
+                                            <img src="' . $foto . '" alt="">
+                                        </figure>
+                                        <h3>'. $titulo .'</h3>
+                                        <div class="card-informations-1">
+                                            <div class="card-info-1">
+                                                <h4>1ª Praça</h4>
+                                                <p><span>Início:</span> '.$data_inicio_1a_praca->format('d/m/Y').'</p>
+                                                <p><span>Fim:</span> '.$data_fim_1a_praca->format('d/m/Y').'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '.$lance_inicial.'</p>
+                                                <p><span>Ultimo lance:</span> R$ '. $ultimo_lance .' </p>
+                                            </div>
+                                        </div>
+                                        <div class="card-informations-row"></div>
+                                        <div class="card-informations-2">
+                                            <div class="card-info-1">
+                                                <h4>2ª Praça</h4>
+                                                <p><span>Início:</span> '. $data_inicio_2a_praca->format('d/m/Y') .'</p>
+                                                <p><span>Fim:</span> '. $data_fim_2a_praca->format('d/m/Y') .'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '. $desconto .'</p>
+                                                <p><span>Ultimo lance:</span> R$ - </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="dar-lance"> '. $botao .' </div>
+                                </div>
+                            
+                                
+                                ';
+                            } else {
+                                    
+                                echo '
+                                
+                                <div class="card">
+                                    <div class="inner-card">
+                                        <figure>
+                                            <img src="'.$foto.'" alt="">
+                                        </figure>
+                                        <h3>'.$titulo.'</h3>
+                                        <div class="card-informations-1">
+                                            <div class="card-info-1">
+                                                <h4>1ª Praça</h4>
+                                                <p><span>Início:</span> '. $data_inicio_1a_praca->format('d/m/Y') .'</p>
+                                                <p><span>Fim:</span> '. $data_fim_1a_praca->format('d/m/Y') .'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '. $lance_inicial .'</p>
+                                                <p><span>Ultimo lance:</span> R$ '. $ultimo_lance .'</p>
+                                            </div>
+                                        </div>
+                                        <div class="card-informations-row"></div>
+                                    </div>
+                                    <div class="dar-lance">
+                                        <div class="dar-lance"> '. $botao .' </div>
+                                    </div>
+                                </div>
+                            
+                                
+                                ';
+    
+                            }
+                        }
+                    }
+                
+                ?>
+            </div>
+
+            <!--
             <div class="cards-section-1">
                 <div class="card">
                     <div class="inner-card">
@@ -142,7 +1125,7 @@
                         </div>
                     </div>
                     <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
+                        <a href="tela-pagamento-adm.php">Dar lance</a>
                     </div>
                 </div>
                 <div class="card">
@@ -177,7 +1160,7 @@
                         </div>
                     </div>
                     <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
+                        <a href="tela-pagamento-adm.php">Dar lance</a>
                     </div>
                 </div>
                 <div class="card">
@@ -212,565 +1195,10 @@
                         </div>
                     </div>
                     <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
+                        <a href="tela-pagamento-adm.php">Dar lance</a>
                     </div>
                 </div>
-            </div>
-            <div class="categoria-row">
-                <h2>Veículos</h2>
-                <div class="row"></div>
-            </div>
-            <div class="cards-section-1">
-                <div class="card">
-                    <div class="inner-card">
-                        <figure>
-                            <img src="https://lh5.googleusercontent.com/proxy/n0xEMt3C1mCQHvmwPO85WnKC9D07NazayP86x7ADPNjOs8O70fCf4FJYkgBS95LRxxQ9BL-kKXtEo3DKCN4KUhxhNMtax86iEokK4CSL6XfFtKVIWLmV" alt="">
-                        </figure>
-                        <h3>Chevrolet Camaro</h3>
-                        <div class="card-informations-1">
-                            <div class="card-info-1">
-                                <h4>1ª Praça</h4>
-                                <p><span>Início:</span> 05/03/2025</p>
-                                <p><span>Fim:</span> 30/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$142.000,00</p>
-                                <p><span>Ultimo lance:</span> R$152.000,00</p>
-                            </div>
-                        </div>
-                        <div class="card-informations-row"></div>
-                        <div class="card-informations-2">
-                            <div class="card-info-1">
-                                <h4>2ª Praça</h4>
-                                <p><span>Início:</span> 04/05/2025</p>
-                                <p><span>Fim:</span> 15/05/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$133.000,00</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="inner-card">
-                        <figure>
-                            <img src="https://cabralmotor.fbitsstatic.net/img/p/cg-160-titan-70286/257551-6.jpg?w=1000&h=1000&v=202504071324&qs=ignore" alt="">
-                        </figure>
-                        <h3>Honda GC 160 Titan</h3>
-                        <div class="card-informations-1">
-                            <div class="card-info-1">
-                                <h4>1ª Praça</h4>
-                                <p><span>Início:</span> 12/03/2025</p>
-                                <p><span>Fim:</span> 24/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$14.500,00</p>
-                                <p><span>Ultimo lance:</span> R$16.000,00</p>
-                            </div>
-                        </div>
-                        <div class="card-informations-row"></div>
-                        <div class="card-informations-2">
-                            <div class="card-info-1">
-                                <h4>2ª Praça</h4>
-                                <p><span>Início:</span> 30/04/2025</p>
-                                <p><span>Fim:</span> 15/05/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$12.000,00</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="inner-card">
-                        <figure>
-                            <img src="https://s2-autoesporte.glbimg.com/PhjGqvSsrjhXhcRaiQPVcGl-L1Y=/0x0:1980x1204/924x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_cf9d035bf26b4646b105bd958f32089d/internal_photos/bs/2024/w/r/ln4uNrTKiFAf9XmqHtaQ/fiat-titano-ambientadas-007.jpg" alt="">
-                        </figure>
-                        <h3>Fiat Titano</h3>
-                        <div class="card-informations-1">
-                            <div class="card-info-1">
-                                <h4>1ª Praça</h4>
-                                <p><span>Início:</span> 18/03/2025</p>
-                                <p><span>Fim:</span> 04/05/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$212.000,00</p>
-                                <p><span>Ultimo lance:</span> R$213.000,00</p>
-                            </div>
-                        </div>
-                        <div class="card-informations-row"></div>
-                        <div class="card-informations-2">
-                            <div class="card-info-1">
-                                <h4>2ª Praça</h4>
-                                <p><span>Início:</span> 05/05/2025</p>
-                                <p><span>Fim:</span> 15/05/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$190.000,00</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
-                    </div>
-                </div>
-            </div>
-            <div class="categoria-row">
-                <h2>Antiguidades</h2>
-                <div class="row"></div>
-            </div>
-            <div class="cards-section-1">
-                <div class="card">
-                    <div class="inner-card">
-                        <figure>
-                            <img src="https://i.pinimg.com/736x/86/a6/c8/86a6c8fedfd94016dcddc0c72e52796b.jpg" alt="">
-                        </figure>
-                        <h3>Vaso Meso-americano</h3>
-                        <div class="card-informations-1">
-                            <div class="card-info-1">
-                                <h4>1ª Praça</h4>
-                                <p><span>Início:</span> 19/03/2025</p>
-                                <p><span>Fim:</span> 05/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$4.200,00</p>
-                                <p><span>Ultimo lance:</span> R$5.320,00</p>
-                            </div>
-                        </div>
-                        <div class="card-informations-row"></div>
-                        <div class="card-informations-2">
-                            <div class="card-info-1">
-                                <h4>2ª Praça</h4>
-                                <p><span>Início:</span> 05/04/2025</p>
-                                <p><span>Fim:</span> 15/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$3.750,00</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="inner-card">
-                        <figure>
-                            <img src="https://www.artesintonia.com.br/cdn/shop/files/ANN03-escultura-bronze-buda-bali-indonesia-importado-casa-budismo-decoracao-1-01.jpg?v=1708638636" alt="">
-                        </figure>
-                        <h3>Escultura de Bronze Buldista</h3>
-                        <div class="card-informations-1">
-                            <div class="card-info-1">
-                                <h4>1ª Praça</h4>
-                                <p><span>Início:</span> 24/03/2025</p>
-                                <p><span>Fim:</span> 04/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$3.400,00</p>
-                                <p><span>Ultimo lance:</span> R$4.020,00</p>
-                            </div>
-                        </div>
-                        <div class="card-informations-row"></div>
-                        <div class="card-informations-2">
-                            <div class="card-info-1">
-                                <h4>2ª Praça</h4>
-                                <p><span>Início:</span> 01/05/2025</p>
-                                <p><span>Fim:</span> 15/05/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$2.900,00</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="inner-card">
-                        <figure>
-                            <img src="https://down-br.img.susercontent.com/file/1321f0bdf1f03b8091a0c605659c5f49" alt="">
-                        </figure>
-                        <h3>Quadro de Óleo - Quedas D'àgua</h3>
-                        <div class="card-informations-1">
-                            <div class="card-info-1">
-                                <h4>1ª Praça</h4>
-                                <p><span>Início:</span> 09/03/2025</p>
-                                <p><span>Fim:</span> 04/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$200,00</p>
-                                <p><span>Ultimo lance:</span> R$320,00</p>
-                            </div>
-                        </div>
-                        <div class="card-informations-row"></div>
-                        <div class="card-informations-2">
-                            <div class="card-info-1">
-                                <h4>2ª Praça</h4>
-                                <p><span>Início:</span> 09/05/2025</p>
-                                <p><span>Fim:</span> 19/05/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$160,00</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
-                    </div>
-                </div>
-            </div>
-            <div class="categoria-row">
-                <h2>Roupas</h2>
-                <div class="row"></div>
-            </div>
-            <div class="cards-section-1">
-                <div class="card">
-                    <div class="inner-card">
-                        <figure>
-                            <img src="https://shoppingcity.com.br/media/catalog/product/cache/51a80c9da94f85ac42b65ba251e9fd91/j/a/jaqueta_masculina_laranja_detachable.jpg" alt="">
-                        </figure>
-                        <h3>Casaco Laranja</h3>
-                        <div class="card-informations-1">
-                            <div class="card-info-1">
-                                <h4>1ª Praça</h4>
-                                <p><span>Início:</span> 18/03/2025</p>
-                                <p><span>Fim:</span> 04/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$400,00</p>
-                                <p><span>Ultimo lance:</span> R$420,00</p>
-                            </div>
-                        </div>
-                        <div class="card-informations-row"></div>
-                        <div class="card-informations-2">
-                            <div class="card-info-1">
-                                <h4>2ª Praça</h4>
-                                <p><span>Início:</span> 08/04/2025</p>
-                                <p><span>Fim:</span> 19/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$340,00</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="inner-card">
-                        <figure>
-                            <img src="https://i.pinimg.com/474x/47/9d/8b/479d8b4f6de70b02e4b0ed7e70799125.jpg" alt="">
-                        </figure>
-                        <h3>Vestido Estampado com Flores</h3>
-                        <div class="card-informations-1">
-                            <div class="card-info-1">
-                                <h4>1ª Praça</h4>
-                                <p><span>Início:</span> 19/03/2025</p>
-                                <p><span>Fim:</span> 07/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$270,00</p>
-                                <p><span>Ultimo lance:</span> R$300,00</p>
-                            </div>
-                        </div>
-                        <div class="card-informations-row"></div>
-                        <div class="card-informations-2">
-                            <div class="card-info-1">
-                                <h4>2ª Praça</h4>
-                                <p><span>Início:</span> 09/04/2025</p>
-                                <p><span>Fim:</span> 15/05/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$200,00</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="inner-card">
-                        <figure>
-                            <img src="https://rivierawear.com.br/cdn/shop/files/S7818ae00b9084262835f54fff6d61f1fU.jpg?v=1688494129" alt="">
-                        </figure>
-                        <h3>Calça Jeans</h3>
-                        <div class="card-informations-1">
-                            <div class="card-info-1">
-                                <h4>1ª Praça</h4>
-                                <p><span>Início:</span> 14/03/2025</p>
-                                <p><span>Fim:</span> 04/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$300,00</p>
-                                <p><span>Ultimo lance:</span> R$310,00</p>
-                            </div>
-                        </div>
-                        <div class="card-informations-row"></div>
-                        <div class="card-informations-2">
-                            <div class="card-info-1">
-                                <h4>2ª Praça</h4>
-                                <p><span>Início:</span> 05/04/2025</p>
-                                <p><span>Fim:</span> 15/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$250,00</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
-                    </div>
-                </div>
-            </div>
-            <div class="categoria-row">
-                <h2>Móvel</h2>
-                <div class="row"></div>
-            </div>
-            <div class="cards-section-1">
-                <div class="card">
-                    <div class="inner-card">
-                        <figure>
-                            <img src="https://www.colchaocostarica.com.br/produtos/imagens/42198-det-Cama-de-Queen-de-Monaco---Tcil-Moveis.jpg" alt="">
-                        </figure>
-                        <h3>Cama de Casal Queen Mônaco</h3>
-                        <div class="card-informations-1">
-                            <div class="card-info-1">
-                                <h4>1ª Praça</h4>
-                                <p><span>Início:</span> 28/03/2025</p>
-                                <p><span>Fim:</span> 04/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$436,50</p>
-                                <p><span>Ultimo lance:</span> R$500,00</p>
-                            </div>
-                        </div>
-                        <div class="card-informations-row"></div>
-                        <div class="card-informations-2">
-                            <div class="card-info-1">
-                                <h4>2ª Praça</h4>
-                                <p><span>Início:</span> 08/04/2025</p>
-                                <p><span>Fim:</span> 15/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$410,50</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="inner-card">
-                        <figure>
-                            <img src="https://abracasa.vteximg.com.br/arquivos/ids/195834/2025_cadeira_malai_mesa_jantar_dadi.jpg.jpg?v=638733234462200000" alt="">
-                        </figure>
-                        <h3>Mesa de Jantar Redonda</h3>
-                        <div class="card-informations-1">
-                            <div class="card-info-1">
-                                <h4>1ª Praça</h4>
-                                <p><span>Início:</span> 26/03/2025</p>
-                                <p><span>Fim:</span> 01/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$3.200,00</p>
-                                <p><span>Ultimo lance:</span> R$4.000,00</p>
-                            </div>
-                        </div>
-                        <div class="card-informations-row"></div>
-                        <div class="card-informations-2">
-                            <div class="card-info-1">
-                                <h4>2ª Praça</h4>
-                                <p><span>Início:</span> 08/04/2025</p>
-                                <p><span>Fim:</span> 19/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$2750,00</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="inner-card">
-                        <figure>
-                            <img src="https://cdn.leroymerlin.com.br/products/cadeira_balanco_ninho_suspenso_gota_tramado_com_suporte_e_alm_1571679380_d5a2_600x600.jpg" alt="">
-                        </figure>
-                        <h3>Cadeira de Balança Ninho Gota</h3>
-                        <div class="card-informations-1">
-                            <div class="card-info-1">
-                                <h4>1ª Praça</h4>
-                                <p><span>Início:</span> 10/03/2025</p>
-                                <p><span>Fim:</span> 16/03/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$193,00</p>
-                                <p><span>Ultimo lance:</span> R$200,00</p>
-                            </div>
-                        </div>
-                        <div class="card-informations-row"></div>
-                        <div class="card-informations-2">
-                            <div class="card-info-1">
-                                <h4>2ª Praça</h4>
-                                <p><span>Início:</span> 01/04/2025</p>
-                                <p><span>Fim:</span> 28/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$170,00</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
-                    </div>
-                </div>
-            </div>
-            <div class="categoria-row">
-                <h2>Outros</h2>
-                <div class="row"></div>
-            </div>
-            <div class="cards-section-1">
-                <div class="card">
-                    <div class="inner-card">
-                        <figure>
-                            <img src="https://m.media-amazon.com/images/I/518tkiWGd0L._AC_SY350_.jpg" alt="">
-                        </figure>
-                        <h3>Lâminas do Caos (chaveiro)</h3>
-                        <div class="card-informations-1">
-                            <div class="card-info-1">
-                                <h4>1ª Praça</h4>
-                                <p><span>Início:</span> 28/03/2025</p>
-                                <p><span>Fim:</span> 04/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$600,00</p>
-                                <p><span>Ultimo lance:</span> R$650,00</p>
-                            </div>
-                        </div>
-                        <div class="card-informations-row"></div>
-                        <div class="card-informations-2">
-                            <div class="card-info-1">
-                                <h4>2ª Praça</h4>
-                                <p><span>Início:</span> 07/04/2025</p>
-                                <p><span>Fim:</span> 09/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$499,90</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="inner-card">
-                        <figure>
-                            <img src="https://img.joomcdn.net/db0ef987d244ede0a325f677c0916af327bcb688_original.jpeg" alt="">
-                        </figure>
-                        <h3>Pás de Ferro Inoxidável</h3>
-                        <div class="card-informations-1">
-                            <div class="card-info-1">
-                                <h4>1ª Praça</h4>
-                                <p><span>Início:</span> 09/03/2025</p>
-                                <p><span>Fim:</span> 12/03/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$120,00</p>
-                                <p><span>Ultimo lance:</span> R$130,00</p>
-                            </div>
-                        </div>
-                        <div class="card-informations-row"></div>
-                        <div class="card-informations-2">
-                            <div class="card-info-1">
-                                <h4>2ª Praça</h4>
-                                <p><span>Início:</span> 16/03/2025</p>
-                                <p><span>Fim:</span> 20/03/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$90,00</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="inner-card">
-                        <figure>
-                            <img src="https://www.bagaggio.com.br/arquivos/ids/2343108_2/0160819588001---GARRAFA-TERM-500ML-HOLOGRAFICA--ROXO-U--1-.jpg" alt="">
-                        </figure>
-                        <h3>Garrafa Térmica (650ml)</h3>
-                        <div class="card-informations-1">
-                            <div class="card-info-1">
-                                <h4>1ª Praça</h4>
-                                <p><span>Início:</span> 09/03/2025</p>
-                                <p><span>Fim:</span> 09/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$60,00</p>
-                                <p><span>Ultimo lance:</span> R$70,00</p>
-                            </div>
-                        </div>
-                        <div class="card-informations-row"></div>
-                        <div class="card-informations-2">
-                            <div class="card-info-1">
-                                <h4>2ª Praça</h4>
-                                <p><span>Início:</span> 10/04/2025</p>
-                                <p><span>Fim:</span> 15/04/2025</p>
-                            </div>
-                            <div class="card-info-2">
-                                <p class="inicial-lance-padding-top">.</p>
-                                <p><span>Valor inicial:</span> R$40,00</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="dar-lance">
-                        <a href="tela-pagamento.php">Dar lance</a>
-                    </div>
-                </div>
-            </div>
+            </div>-->
         </section>
     </main>
 </body>

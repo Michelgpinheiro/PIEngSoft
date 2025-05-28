@@ -45,7 +45,7 @@
 
         $stmt = $conn->prepare("INSERT INTO produto (NOME, ID_USUARIO, MARCA, ANO_FABRICACAO, QUILOMETRAGEM, MODELO, LANCE_INICIAL, COR, PLACA, DADOS_ADICIONAIS, STATUS_PRODUTO, CATEGORIA) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)");
 
-        $stmt->bind_param("sisidsdsss", $nome, $id_usuario, $marca, $ano_fabricacao, $quilometragem, $modelo, $lance_inicial, $cor, $condicao, $informacoes, $categoria);
+        $stmt->bind_param("sisidsdssss", $nome, $id_usuario, $marca, $ano_fabricacao, $quilometragem, $modelo, $lance_inicial, $cor, $condicao, $informacoes, $categoria);
 
         if ($stmt->execute()) {
 
@@ -69,6 +69,13 @@
                     $stmtFoto->close();
                 }
             } 
+
+            $tipo = "Produto Cadastrado";
+
+            $stmt_movimentacao = $conn->prepare("INSERT INTO movimentacao (ID_USUARIO, TIPO_MOVIMENTACAO, VALOR, NOME_PRODUTO) VALUES (?, ?, ?, ?)");
+            $stmt_movimentacao->bind_param("isds", $_SESSION['id-usuario'], $tipo, $lance_inicial, $nome);
+            $stmt_movimentacao->execute();
+            $stmt_movimentacao->close();
 
             $_SESSION['cadastro-sucesso'] = "<p><i class='material-icons'>check_circle</i> Cadastro de produto realizado com sucesso</p>";
 
@@ -241,7 +248,7 @@
                                 </div>
                                 <div class="lanceinicial">
                                     <label for="lanceinicial">Lance inicial (R$)</label>
-                                    <input type="number" name="lanceinicial" id="lanceinicial" value="<?=$_SESSION['old']['lanceinicial'] ?? ''?>" required step="any">
+                                    <input type="number" name="lanceinicial" id="lanceinicial" value="<?=$_SESSION['old']['lanceinicial'] ?? ''?>" required step="any" min="0">
                                 </div>
                                 <div class="lanceinicial">
                                     <label for="cor">Cor</label>

@@ -17,13 +17,12 @@
                 // O e-mail existe, redirecionar para o formulário de nova senha
                 session_start();
                 $_SESSION['email_para_redefinir'] = $email;
-                header("Location: nova-senha.php");
+                header("Location: perguntas-recuperar-senha.php");
                 exit;
             } else {
                 $_SESSION['email-nao-encontrado'] = "<p><i class='material-icons'>error</i> E-mail não encontrado</p>";
                 header('Location: recuperar-senha.php');
                 exit;
-                // echo "<script>alert('E-mail não encontrado!'); window.location.href='recuperar-senha.php';</script>";
             }
     
             $stmt->close();

@@ -8,7 +8,6 @@
         header('Location: login.php');
         exit;
     }
-
     unset($_SESSION['cadastro-sucesso'], $_SESSION['email-usuario'], $_SESSION['senha-usuario']);
 
     $usuario = new PhysicalPerson();
@@ -19,6 +18,27 @@
     $nome_usuario = $_SESSION['nome-usuario'];
     $primeiro_nome = explode(' ', trim($nome_usuario))[0];
 
+    if ($_SERVER['REQUEST_METHOD'] == "POST") {
+        if (empty(trim($_POST['mensagem']))) {
+            $_SESSION['mensagem-vazia'] = "<p><i class='material-icons'>error</i> O campo de mensagem não pode ser enviado vazio</p>";
+    
+            header('Location: ' . $_SERVER['PHP_SELF']);
+            exit;
+        }
+        
+        $mensagem = trim($_POST['mensagem']);
+    
+        $stmt = $conn->prepare("INSERT INTO mensagem (ID_USUARIO, MENSAGEM) VALUES (?, ?)");
+        $stmt->bind_param("is", $id_usuario ,$mensagem);
+        $stmt->execute();
+        $stmt->close();
+        $conn->close();
+    
+        $_SESSION['mensagem-sucesso'] = "<p><i class='material-icons'>check_circle</i> Mensagem enviada com sucesso</p>";
+    
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -62,7 +82,7 @@
         </div>
     </header>
     <main>
-        <nav class="nav-movel">
+        <nav class="nav-movel" style="box-shadow: none;">
             <ul>
                 <li><a href="tela-inicial.php">Início</a></li>
                 <li><a href="categorias.php">Categorias</a></li>
@@ -123,30 +143,71 @@
         <div class="inner-header">
             <div class="contatar-mensagem-enviar">
                 <h3>Como nos contatar?</h3>
-                <div class="mensagem-enviar">
+                <?php 
+                    if (isset($_SESSION['mensagem-vazia'])) {
+                        ?>
+                        <div class="mensagem-erro" id="mensagem-erro" style="margin-top: 10px;">
+                            <?=$_SESSION['mensagem-vazia']?>
+                        </div>
+                            <script>
+                                // Oculta a mensagem após 4 segundos
+                                setTimeout(function() {
+                                    const msg = document.getElementById('mensagem-erro');
+                                    if (msg) {
+                                        msg.style.transition = 'opacity 0.5s ease';
+                                        msg.style.opacity = '0';
+                                        setTimeout(() => msg.remove(), 500); // Remove do DOM após o fade-out
+                                    }
+                                }, 4000);
+                            </script>
+                        <?php
+                        unset($_SESSION['mensagem-vazia']);
+                    }
+
+                    if (isset($_SESSION['mensagem-sucesso'])) {
+                        ?>
+                        <div class="mensagem-sucesso" id="mensagem-sucesso" style="margin-top: 10px;">
+                            <?=$_SESSION['mensagem-sucesso']?>
+                        </div>
+                            <script>
+                                // Oculta a mensagem após 4 segundos
+                                setTimeout(function() {
+                                    const msg = document.getElementById('mensagem-sucesso');
+                                    if (msg) {
+                                        msg.style.transition = 'opacity 0.5s ease';
+                                        msg.style.opacity = '0';
+                                        setTimeout(() => msg.remove(), 500); // Remove do DOM após o fade-out
+                                    }
+                                }, 4000);
+                            </script>
+                        <?php
+                        unset($_SESSION['mensagem-sucesso']);
+                    }
+                ?>
+                <form style="background-color: #5e2a1e" action="<?=$_SERVER['PHP_SELF']?>" method="POST" class="mensagem-enviar">
                     <div class="mensagem">
                         <label for="mensagem">Envie sua mensagem aqui</label>
                         <textarea name="mensagem" id="mensagem"></textarea>
                     </div>
                     <button type="submit" id="enviar-contato">Enviar</button>
-                </div>
+                </form>
             </div>
             <div class="redes-socias">
                 <h4>Nossas outras redes</h4>
                 <nav class="redes">
                     <ul>
                         <li>
-                            <a href="#">
+                            <a href="https://mail.google.com/mail/u/0/#inbox" target="_blank">
                                 <img src="css/svg/emial.svg" alt="">
                             </a>
                         </li>
                         <li>
-                            <a href="#">
+                            <a href="https://github.com/Leony76/PIEngSoft" target="_blank">
                                 <img src="css/svg/github.svg" alt="">
                             </a>
                         </li>
                         <li>
-                            <a href="#">
+                            <a href="https://www.whatsapp.com/?lang=pt_BR" target="_blank">
                                 <img src="css/svg/whatssap.svg" alt="">
                             </a>
                         </li>

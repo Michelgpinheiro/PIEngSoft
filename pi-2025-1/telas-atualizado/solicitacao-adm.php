@@ -92,6 +92,8 @@
         $stmt_update_recusa->close();
 
         unset($_SESSION['id-produto'], $_SESSION['user-id']);
+
+        $_SESSION['solicitacao-recusa'] = "<p><i class='material-icons'>check_circle</i> Solicitação recusada com sucesso</p>";
             
         header('Location: tela-solicitacao-adm.php');
         exit;

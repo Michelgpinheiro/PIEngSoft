@@ -53,70 +53,199 @@
             header('Location: ' . $_SERVER['PHP_SELF']);
             exit;
         } else {
-            // Receber dados do formulário
-            $usuario = new PhysicalPerson();
 
-            $nome = $_POST['nome-completo'] ?? '';
-            $telefone = $_POST['telefone'] ?? '';
-            $estado = $_POST['estado'] ?? '';
-            $cep = $_POST['cep'] ?? '';
-            $bairro = $_POST['bairro'] ?? '';
-            $numero = $_POST['numero'] ?? '';
-            $endereco = $_POST['endereco'] ?? '';
-            $complemento = $_POST['complemento'] ?? ''; // não usado no banco
-            $cidade = $_POST['cidade'] ?? '';
-            $usuario->setCpf($_POST['cpf'] ?? '');
-            $usuario->setRg($_POST['rg'] ?? '');
-            $usuario->setEmail($_POST['email'] ?? '');
-            $usuario->setPassword(password_hash($senha, PASSWORD_DEFAULT));
+             function removerAcentos($string) {
+                return preg_replace(
+                    array(
+                        '/[áàãâä]/u', '/[ÁÀÃÂÄ]/u',
+                        '/[éèêë]/u', '/[ÉÈÊË]/u',
+                        '/[íìîï]/u', '/[ÍÌÎÏ]/u',
+                        '/[óòõôö]/u', '/[ÓÒÕÔÖ]/u',
+                        '/[úùûü]/u', '/[ÚÙÛÜ]/u',
+                        '/[ç]/u',    '/[Ç]/u'
+                    ),
+                    array(
+                        'a', 'A',
+                        'e', 'E',
+                        'i', 'I',
+                        'o', 'O',
+                        'u', 'U',
+                        'c', 'C'
+                    ),
+                    $string
+                );
+            }
 
-            $stmt = $conn->prepare("INSERT INTO usuario (ID_TP_USU, ID_USU_PAI, NOME, CPF, RG, FONE, LOGRADOURO, BAIRRO, NUMERO, UF, CIDADE, EMAIL, SENHA, ST_USUARIO)
-                VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
+            if(isset($_POST['e-adm'])) {
 
-            $stmt->bind_param("isssssssssss", $id_usuario, $nome, $usuario->getCpf(), $usuario->getRg(), $telefone, $endereco, $bairro, $numero, $estado, $cidade, $usuario->getEmail(), $usuario->getPassword());
+                $usuario = new LegalEntity();
 
-            if ($stmt->execute()) {
+                $nome_fantasia = $_POST['nome-completo'] ?? '';
+                $telefone = $_POST['telefone'] ?? '';
+                $estado = $_POST['estado'] ?? '';
+                $cep = $_POST['cep'] ?? '';
+                $bairro = $_POST['bairro'] ?? '';
+                $numero = $_POST['numero'] ?? '';
+                $endereco = $_POST['endereco'] ?? '';
+                $complemento = $_POST['complemento'] ?? ''; // não usado no banco
+                $cidade = $_POST['cidade'] ?? '';
+                $usuario->setCnpj($_POST['cpf'] ?? '');
+                $usuario->setEmail($_POST['email'] ?? '');
+                $usuario->setPassword(password_hash($senha, PASSWORD_DEFAULT));
+                $pergunta_senha1 = password_hash(
+                    htmlspecialchars(
+                        mb_strtolower(removerAcentos($_POST['recuperar-senha-cidade-mae-nasceu']))
+                    ), PASSWORD_DEFAULT
+                );
+                $pergunta_senha2 = password_hash(
+                    htmlspecialchars(
+                        mb_strtolower(removerAcentos($_POST['recuperar-senha-estimacao-primeiro-nome']))
+                    ), PASSWORD_DEFAULT
+                );
+                $pergunta_senha3 = password_hash(
+                    htmlspecialchars(
+                        mb_strtolower(removerAcentos($_POST['recuperar-senha-professor-favorito']))
+                    ), PASSWORD_DEFAULT
+                );
 
-                if ($stmt->affected_rows > 0) {
-                    $id_usuario = $stmt->insert_id;
+                $stmt = $conn->prepare("INSERT INTO usuario (ID_TP_USU, ID_USU_PAI, NOME_FANTASIA, CNPJ, FONE, LOGRADOURO, BAIRRO, NUMERO, UF, CIDADE, EMAIL, SENHA, PERGUNTA_1, PERGUNTA_2, PERGUNTA_3, ST_USUARIO) VALUES (2, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
 
-                    if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-                        $fotoTmp = $_FILES['foto']['tmp_name'];
-    
-                        $nomeOriginal = $_FILES['foto']['name'];
-                        $nomeFoto = "perfil_" . $id_usuario . ".jpg";
-                        $caminhoDestino = "imagens/perfis/" . $nomeFoto;
-    
-                        // Salvar a imagem
-                        move_uploaded_file($fotoTmp, $caminhoDestino);
-    
-                        // 3. Atualizar usuário com o caminho da foto
-                        $stmtFoto = $conn->prepare("UPDATE usuario SET FOTO = ? WHERE ID = ?");
-                        $stmtFoto->bind_param("si", $caminhoDestino, $id_usuario);
-                        $stmtFoto->execute();
-                        $stmtFoto->close();
-                    }
-                } 
+                $stmt->bind_param("isssssssssssss", $id_usuario, $nome_fantasia, $usuario->getCnpj(), $telefone, $endereco, $bairro, $numero, $estado, $cidade, $usuario->getEmail(), $usuario->getPassword(), $pergunta_senha1, $pergunta_senha2, $pergunta_senha3);
 
-                $_SESSION['cadastro-sucesso'] = "<p><i class='material-icons'>check_circle</i> Cadastro de usuário realizado com sucesso</p>";
+                if ($stmt->execute()) {
 
-                // $_SESSION['cadastro-sucesso'] = true;
-                $_SESSION['email-usuario'] = $usuario->getEmail();
-                $_SESSION['senha-usuario'] = $senha;
-                $_SESSION['nome-usuario'] = $nome;
+                    if ($stmt->affected_rows > 0) {
+                        $id_usuario = $stmt->insert_id;
 
-                unset($_SESSION['old']);
+                        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+                            $fotoTmp = $_FILES['foto']['tmp_name'];
+        
+                            $nomeOriginal = $_FILES['foto']['name'];
+                            $nomeFoto = "perfil_" . $id_usuario . ".jpg";
+                            $caminhoDestino = "imagens/perfis/" . $nomeFoto;
+        
+                            // Salvar a imagem
+                            move_uploaded_file($fotoTmp, $caminhoDestino);
+        
+                            // 3. Atualizar usuário com o caminho da foto
+                            $stmtFoto = $conn->prepare("UPDATE usuario SET FOTO = ? WHERE ID = ?");
+                            $stmtFoto->bind_param("si", $caminhoDestino, $id_usuario);
+                            $stmtFoto->execute();
+                            $stmtFoto->close();
+                        }
+                    } 
 
-                header('Location: listagem-usuarios-adm.php');
-                exit;
+                    $tipo = "Cadastro de usuário";
+
+                    $stmt_movimentacao = $conn->prepare("INSERT INTO movimentacao (ID_USUARIO, TIPO_MOVIMENTACAO, NOME_CADASTRADO, GRAU) VALUES (?, ?, ?, 2)");
+                    $stmt_movimentacao->bind_param("iss", $_SESSION['id-usuario'], $tipo, $nome);
+                    $stmt_movimentacao->execute();
+                    $stmt_movimentacao->close();
+
+                    $_SESSION['cadastro-sucesso'] = "<p><i class='material-icons'>check_circle</i> Cadastro de usuário realizado com sucesso</p>";
+
+                    // // $_SESSION['cadastro-sucesso'] = true;
+                    // $_SESSION['email-usuario'] = $usuario->getEmail();
+                    // $_SESSION['senha-usuario'] = $senha;
+                    // $_SESSION['nome-fantasia'] = $nome_fantasia;
+
+                    unset($_SESSION['old']);
+
+                    header('Location: listagem-usuarios-adm.php');
+                    exit;
+                } else {
+                    $_SESSION['erro-cadastro'] = "<p><i class='material-icons'>error</i> Ocorreu um ao cadastrar</p>";
+                    header('Location: ' . $_SERVER['PHP_SELF']);
+                    exit;
+                }
             } else {
-                $_SESSION['erro-cadastro'] = "<p><i class='material-icons'>error</i> Ocorreu um ao cadastrar</p>";
-                header('Location: ' . $_SERVER['PHP_SELF']);
-                exit;
+
+                $usuario = new PhysicalPerson();
+    
+                $nome = $_POST['nome-completo'] ?? '';
+                $telefone = $_POST['telefone'] ?? '';
+                $estado = $_POST['estado'] ?? '';
+                $cep = $_POST['cep'] ?? '';
+                $bairro = $_POST['bairro'] ?? '';
+                $numero = $_POST['numero'] ?? '';
+                $endereco = $_POST['endereco'] ?? '';
+                $complemento = $_POST['complemento'] ?? ''; // não usado no banco
+                $cidade = $_POST['cidade'] ?? '';
+                $usuario->setCpf($_POST['cpf'] ?? '');
+                $usuario->setRg($_POST['rg'] ?? '');
+                $usuario->setEmail($_POST['email'] ?? '');
+                $usuario->setPassword(password_hash($senha, PASSWORD_DEFAULT));
+                $pergunta_senha1 = password_hash(
+                    htmlspecialchars(
+                        mb_strtolower(removerAcentos($_POST['recuperar-senha-cidade-mae-nasceu']))
+                    ), PASSWORD_DEFAULT
+                );
+                $pergunta_senha2 = password_hash(
+                    htmlspecialchars(
+                        mb_strtolower(removerAcentos($_POST['recuperar-senha-estimacao-primeiro-nome']))
+                    ), PASSWORD_DEFAULT
+                );
+                $pergunta_senha3 = password_hash(
+                    htmlspecialchars(
+                        mb_strtolower(removerAcentos($_POST['recuperar-senha-professor-favorito']))
+                    ), PASSWORD_DEFAULT
+                );
+    
+                $stmt = $conn->prepare("INSERT INTO usuario (ID_TP_USU, ID_USU_PAI, NOME, CPF, RG, FONE, LOGRADOURO, BAIRRO, NUMERO, UF, CIDADE, EMAIL, SENHA, PERGUNTA_1, PERGUNTA_2, PERGUNTA_3, ST_USUARIO)
+                    VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
+    
+                $stmt->bind_param("issssssssssssss", $id_usuario, $nome, $usuario->getCpf(), $usuario->getRg(), $telefone, $endereco, $bairro, $numero, $estado, $cidade, $usuario->getEmail(), $usuario->getPassword(), $pergunta_senha1, $pergunta_senha2, $pergunta_senha3);
+    
+                if ($stmt->execute()) {
+    
+                    if ($stmt->affected_rows > 0) {
+                        $id_usuario = $stmt->insert_id;
+    
+                        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+                            $fotoTmp = $_FILES['foto']['tmp_name'];
+        
+                            $nomeOriginal = $_FILES['foto']['name'];
+                            $nomeFoto = "perfil_" . $id_usuario . ".jpg";
+                            $caminhoDestino = "imagens/perfis/" . $nomeFoto;
+        
+                            // Salvar a imagem
+                            move_uploaded_file($fotoTmp, $caminhoDestino);
+        
+                            // 3. Atualizar usuário com o caminho da foto
+                            $stmtFoto = $conn->prepare("UPDATE usuario SET FOTO = ? WHERE ID = ?");
+                            $stmtFoto->bind_param("si", $caminhoDestino, $id_usuario);
+                            $stmtFoto->execute();
+                            $stmtFoto->close();
+                        }
+                    } 
+
+                    $tipo = "Cadastro de usuário";
+
+                    $stmt_movimentacao = $conn->prepare("INSERT INTO movimentacao (ID_USUARIO, TIPO_MOVIMENTACAO, NOME_CADASTRADO, GRAU) VALUES (?, ?, ?, 1)");
+                    $stmt_movimentacao->bind_param("iss", $_SESSION['id-usuario'], $tipo, $nome);
+                    $stmt_movimentacao->execute();
+                    $stmt_movimentacao->close();
+    
+                    $_SESSION['cadastro-sucesso'] = "<p><i class='material-icons'>check_circle</i> Cadastro de usuário realizado com sucesso</p>";
+    
+                    // $_SESSION['cadastro-sucesso'] = true;
+                    $_SESSION['email-usuario'] = $usuario->getEmail();
+                    $_SESSION['senha-usuario'] = $senha;
+                    $_SESSION['nome-usuario'] = $nome;
+    
+                    unset($_SESSION['old']);
+    
+                    header('Location: listagem-usuarios-adm.php');
+                    exit;
+                } else {
+                    $_SESSION['erro-cadastro'] = "<p><i class='material-icons'>error</i> Ocorreu um ao cadastrar</p>";
+                    header('Location: ' . $_SERVER['PHP_SELF']);
+                    exit;
+                }
             }
 
             $stmt->close();
-        }
+        } 
     }
 
     $conn->close();
@@ -131,8 +260,8 @@
     <link rel="stylesheet" href="css/cadastro-usuario-fisico-adm/-style-cadastro-usuario-fisico-adm.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="css/logout/style-logout.css">
-    <link rel="stylesheet" href="css/estilizacao-geral.css">
-    <link rel="stylesheet" href="css/-estilizacao-geral.css">
+    <link rel="stylesheet" href="css/estilizacao-geral.css?v=<?=time()?>">
+    <link rel="stylesheet" href="css/-estilizacao-geral.css??v=<?=time()?>">
 </head>
 <body>
     <header>
@@ -211,7 +340,7 @@
         </nav>
         <section class="main-content">
             <section class="secao-principal">
-                <section class="formulario formulario-cadastros">
+                <section style="margin-bottom: 30px;" class="formulario formulario-cadastros">
                 <div class="cabecalho">
                     <h2>Cadastro de usuário</h2>
                     <?php 
@@ -302,7 +431,7 @@
                     </div>
                     <div class="separador"></div>
                 </div>
-                <form style="background-color: #8a3e2c;" action="<?=$_SERVER['PHP_SELF']?>" method="POST" enctype="multipart/form-data" class="form-cadastros">
+                <form style="background-color: #8a3e2c;" action="<?=$_SERVER['PHP_SELF']?>" method="POST" enctype="multipart/form-data" class="form-cadastros" id="form-cadastros">
 
                     <div class="div1">
                         <div class="nome-telefone-cpf">
@@ -345,7 +474,6 @@
                             <div class="estado-cep">
                                 <div class="estado">
                                     <label for="estado">Estado</label>
-                                    <!-- <input type="text" name="estado" id="estado" value="<?=$_SESSION['old']['estado'] ?? ''?>" required> -->
                                     <select name="estado" id="estado" style="background-color: #fff0ce;  padding: 7px; border-radius: 12px; border-color: #fff0ce;" required>
                                         <option value="" <?=!isset($_SESSION['old']['estado']) ? 'selected' : ''?>></option>
                                         <option value="Acre" <?= ($_SESSION['old']['estado'] ?? '') === 'Acre' ? 'selected' : '' ?>>Acre</option>
@@ -428,9 +556,278 @@
                             </div>
                         </div>
                         <div class="avancar-cancelar salvar-cancelar">
-                            <button class="enviar-cadastro" type="submit">Enviar</button>
+                            <label for="e-adm" class="e-admin">
+                                <input type="checkbox" name="e-adm" id="e-adm">
+                                <p>Administração</p>
+                            </label>
+                            <button class="enviar-cadastro" id="btn-abrir-popup" type="button">Avançar</button>
                             <a class="cancelar-cadastro" href="listagem-usuarios-adm.php">Cancelar</a>
                         </div>
+
+                        <div id="popup" class="popup">
+                            <div class="popup-conteudo">
+                                <span id="btn-fechar-popup" class="fechar">&times;</span>
+                                <h2>Preencha essas informações</h2>
+                                <p style="margin-bottom: 20px; text-align: center; font-size: 15px; color: #fff0ce;">Elas servirão para recuperar a senha do usuário cadastrado caso o mesmo esqueça eventualmete</p>
+
+                                <form action="#" method="POST">
+                                    <label for="recuperar-senha-cidade-mae-nasceu">Em qual cidade a mãe dele nasceu?</label>
+                                    <input required type="text" name="recuperar-senha-cidade-mae-nasceu"><br>
+                                    <label for="recuperar-senha-estimacao-primeiro-nome">Qual o nome do primeiro animal de estimação dele?</label>
+                                    <input required type="text" name="recuperar-senha-estimacao-primeiro-nome"><br>
+                                    <label for="recuperar-senha-professor-favorito">Qual nome do professor favorito dele?</label>
+                                    <input required type="text" name="recuperar-senha-professor-favorito"><br><br>
+                                    
+                                    <button class="enviar-cadastro1" type="submit">Cadastrar</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div id="popup-cep2" style="
+                            display: flex;
+                            align-items: center;
+                            position: fixed;
+                            top: 40px;
+                            right: 480px;
+                            background-color: yellow;
+                            color: darkgoldenrod;
+                            border: 2px solid darkgoldenrod;
+                            gap: 8px;
+                            padding: 10px;
+                            border-radius: 10px;
+                            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+                            z-index: 9999;
+                            display: none;
+                            font-weight: bold;
+                        ">
+                            <i style="transform: scale(1.2);" class='material-icons'>warning</i>
+                            <span id="pop-up-message2"></span>
+                        </div>
+                        <div id="popup-cep3" style="
+                            display: flex;
+                            align-items: center;
+                            position: fixed;
+                            top: 90px; 
+                            left: 600px;
+                            background-color: yellow;
+                            color: darkgoldenrod;
+                            border: 2px solid darkgoldenrod;
+                            gap: 8px;
+                            padding: 10px;
+                            border-radius: 10px;
+                            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+                            z-index: 9999;
+                            display: none;
+                            font-weight: bold;
+                        ">
+                            <i style="transform: scale(1.2);" class='material-icons'>warning</i>
+                            <span id="pop-up-message3"></span>
+                        </div>
+                        <div id="popup-cep" style="
+                            display: flex;
+                            align-items: center;
+                            position: fixed;
+                            top: 90px;
+                            right: 400px;
+                            background-color: yellow;
+                            color: darkgoldenrod;
+                            border: 2px solid darkgoldenrod;
+                            gap: 8px;
+                            padding: 10px;
+                            border-radius: 10px;
+                            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+                            z-index: 9999;
+                            display: none;
+                            font-weight: bold;
+                        ">
+                            <i style="transform: scale(1.2);" class='material-icons'>warning</i>
+                            <span id="pop-up-message"></span>
+                        </div>
+                        <script>
+                            const btnAbrir = document.getElementById('btn-abrir-popup');
+                            const popup = document.getElementById('popup');
+                            const btnFechar = document.getElementById('btn-fechar-popup');
+
+                            btnAbrir.onclick = function() {
+                                popup.style.display = "block";
+                            }
+
+                            btnFechar.onclick = function() {
+                                popup.style.display = "none";
+                            }
+
+                            // Fechar clicando fora do popup
+                            window.onclick = function(event) {
+                                if (event.target == popup) {
+                                    popup.style.display = "none";
+                                }
+                            }
+
+                            function validarCPF(cpf) {
+                            cpf = cpf.replace(/[^\d]+/g, ''); // Remove tudo que não for número
+
+                            if (cpf.length !== 11) return false;
+
+                            // Elimina CPFs inválidos conhecidos (todos iguais)
+                            if (/^(\d)\1{10}$/.test(cpf)) return false;
+
+                            // Validação do primeiro dígito verificador
+                            let soma = 0;
+                            for (let i = 0; i < 9; i++) {
+                                soma += parseInt(cpf.charAt(i)) * (10 - i);
+                            }
+                            let resto = (soma * 10) % 11;
+                            if (resto === 10 || resto === 11) resto = 0;
+                            if (resto !== parseInt(cpf.charAt(9))) return false;
+
+                            // Validação do segundo dígito verificador
+                            soma = 0;
+                            for (let i = 0; i < 10; i++) {
+                                soma += parseInt(cpf.charAt(i)) * (11 - i);
+                            }
+                            resto = (soma * 10) % 11;
+                            if (resto === 10 || resto === 11) resto = 0;
+                            if (resto !== parseInt(cpf.charAt(10))) return false;
+
+                            return true;
+                        }
+
+                        document.getElementById('cpf').addEventListener('blur', function() {
+                            const cpf = this.value;
+                            if (!validarCPF(cpf)) {
+                                showPopupErroCPF('CPF inválido!');
+                            }
+                        });
+
+                        function showPopupErroCep(message) {
+                            const popup = document.getElementById('popup-cep2');
+                            const messageSpan = document.getElementById('pop-up-message2');
+
+                            messageSpan.textContent = message;
+                            popup.style.display = 'flex';
+                            popup.style.opacity = '1';
+                            popup.style.transition = 'opacity 1s ease';
+
+                            setTimeout(() => {
+                                popup.style.opacity = '0';
+                                setTimeout(() => {
+                                    popup.style.display = 'none';
+                                }, 300); // Espera o fade-out (1 segundo) antes de sumir completamente
+                            }, 3000); // Mantém visível por 3 segundos antes de começar o fade-out
+                        }
+
+                        function showPopup(message) {
+                            const popup = document.getElementById('popup-cep');
+                            const messageSpan = document.getElementById('pop-up-message');
+
+                            messageSpan.textContent = message;
+                            popup.style.display = 'flex';
+                            popup.style.opacity = '1';
+                            popup.style.transition = 'opacity 1s ease';
+
+                            setTimeout(() => {
+                                popup.style.opacity = '0';
+                                setTimeout(() => {
+                                    popup.style.display = 'none';
+                                }, 300); // Espera o fade-out (1 segundo) antes de sumir completamente
+                            }, 3000); // Mantém visível por 3 segundos antes de começar o fade-out
+                        }
+
+                        function showPopupErroCPF(message) {
+                            const popup = document.getElementById('popup-cep3');
+                            const messageSpan = document.getElementById('pop-up-message3');
+
+                            messageSpan.textContent = message;
+                            popup.style.display = 'flex';
+                            popup.style.opacity = '1';
+                            popup.style.transition = 'opacity 1s ease';
+
+                            setTimeout(() => {
+                                popup.style.opacity = '0';
+                                setTimeout(() => {
+                                    popup.style.display = 'none';
+                                }, 300); // Espera o fade-out (1 segundo) antes de sumir completamente
+                            }, 3000); // Mantém visível por 3 segundos antes de começar o fade-out
+                        }
+
+                        const estados = {
+                            'AC': 'Acre',
+                            'AL': 'Alagoas',
+                            'AP': 'Amapá',
+                            'AM': 'Amazonas',
+                            'BA': 'Bahia',
+                            'CE': 'Ceará',
+                            'DF': 'Distrito Federal',
+                            'ES': 'Espírito Santo',
+                            'GO': 'Goiás',
+                            'MA': 'Maranhão',
+                            'MT': 'Mato Grosso',
+                            'MS': 'Mato Grosso do Sul',
+                            'MG': 'Minas Gerais',
+                            'PA': 'Pará',
+                            'PB': 'Paraíba',
+                            'PR': 'Paraná',
+                            'PE': 'Pernambuco',
+                            'PI': 'Piauí',
+                            'RJ': 'Rio de Janeiro',
+                            'RN': 'Rio Grande do Norte',
+                            'RS': 'Rio Grande do Sul',
+                            'RO': 'Rondônia',
+                            'RR': 'Roraima',
+                            'SC': 'Santa Catarina',
+                            'SP': 'São Paulo',
+                            'SE': 'Sergipe',
+                            'TO': 'Tocantins'
+                        };
+
+                        let cep_valido = false;
+
+                        document.getElementById('cep').addEventListener('blur', function() {
+                            const cep = this.value.replace(/\D/g, '');
+
+                            if (cep.length !== 8) {
+                                showPopup("CEP inválido. Insira 8 dígitos.");
+                                cep_valido = false;
+                                return;
+                            }
+
+                            fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.erro) {
+                                        showPopup('CEP não encontrado!');
+                                        cep_valido = false;
+                                        return;
+                                    }
+                                    document.getElementById('endereco').value = data.logradouro;
+                                    document.getElementById('bairro').value = data.bairro;
+                                    document.getElementById('cidade').value = data.localidade;
+                                    document.getElementById('estado').value = estados[data.uf];
+                                    cep_valido = true;
+                                })
+                            .catch(() => {
+                                showPopup('Erro ao buscar o CEP. Verifique sua conexão.');
+                                cep_valido = false;
+                            });
+                        });
+
+                        document.getElementById('form-cadastros').addEventListener('submit', function(event) {
+                            if (!cep_valido) {
+                                event.preventDefault();
+                                showPopupErroCep('Insira um CEP válido antes de cadastrar');
+                            }
+                        });
+
+                        document.getElementById('form-cadastros').addEventListener('submit', function(event) {
+                            const cpf = document.getElementById('cpf').value;
+
+                            if (!validarCPF(cpf)) {
+                                event.preventDefault(); // Impede o envio do formulário
+                                showPopupErroCep('Insira um CPF válido antes de cadastrar');
+                                // document.getElementById('cpf').focus();
+                            }
+                        });
+                        
+                        </script>
                     </div>
                 </form>
             </section>

@@ -9,6 +9,10 @@
         exit;
     }
 
+    // if (isset($_SESSION['id-produto'])) {
+    //     unset($_SESSION['id-produto']);
+    // }
+
     unset($_SESSION['cadastro-sucesso'], $_SESSION['email-usuario'], $_SESSION['senha-usuario']);
 
     $usuario = new LegalEntity();
@@ -28,13 +32,14 @@
     <title>Home - administrador</title>
     <link rel="stylesheet" href="css/tela-inicial-adm/-style-tela-inicial-adm.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="css/estilizacao-geral.css">
-    <link rel="stylesheet" href="css/-estilizacao-geral.css">
+    <link rel="stylesheet" href="css/estilizacao-geral.css?v=<?=time()?>">
+    <link rel="stylesheet" href="css/-estilizacao-geral.css?v=<?=time()?>">
 </head>
 <body>
     <header>
         <div class="header-container">
             <h1>Leilão</h1>
+            <a class="a-suspenso" href="lista-leilao-suspenso.php">Leilões suspensos</a> 
             <div class="barra-busca">
                 <select name="categorias" id="categorias">
                     <option value="valor0" selected disabled>Categorias</option>
@@ -61,7 +66,7 @@
         </div>
     </header>
     <main>
-        <nav class="nav-movel">
+        <nav class="nav-movel" style="height: 100vh; box-shadow: 10px 0px 2px rgb(238, 238, 238);">
             <ul>
                 <li><a class="selected-page">Início</a></li>
                 <li><a href="categorias-adm.php">Categorias</a></li>
@@ -106,9 +111,50 @@
             </ul>
         </nav>
         <section class="main-content">
-        <?php 
+            <?php 
             
-            if (isset($_SESSION['lance-sucesso'])) {
+                if (isset($_SESSION['leilao-editado'])) {
+                    ?>
+                    <div class="mensagem-sucesso" id="mensagem-sucesso">
+                        <?=$_SESSION['leilao-editado']?>
+                    </div>
+                        <script>
+                            // Oculta a mensagem após 4 segundos
+                            setTimeout(function() {
+                                const msg = document.getElementById('mensagem-sucesso');
+                                if (msg) {
+                                    msg.style.transition = 'opacity 0.5s ease';
+                                    msg.style.opacity = '0';
+                                    setTimeout(() => msg.remove(), 500); // Remove do DOM após o fade-out
+                                }
+                            }, 4000);
+                        </script>
+                    <?php
+                    unset($_SESSION['leilao-editado']);
+                }
+
+                if (isset($_SESSION['leilao-suspenso'])) {
+                    ?>
+                    <div class="mensagem-sucesso" id="mensagem-sucesso">
+                        <?=$_SESSION['leilao-suspenso']?>
+                    </div>
+                        <script>
+                            // Oculta a mensagem após 4 segundos
+                            setTimeout(function() {
+                                const msg = document.getElementById('mensagem-sucesso');
+                                if (msg) {
+                                    msg.style.transition = 'opacity 0.5s ease';
+                                    msg.style.opacity = '0';
+                                    setTimeout(() => msg.remove(), 500); // Remove do DOM após o fade-out
+                                }
+                            }, 4000);
+                        </script>
+                    <?php
+                    unset($_SESSION['leilao-suspenso']);
+                }
+
+            
+                if (isset($_SESSION['lance-sucesso'])) {
                     ?>
                     <div class="mensagem-sucesso" id="mensagem-sucesso">
                         <?=$_SESSION['lance-sucesso']?>
@@ -127,7 +173,46 @@
                     <?php
                     unset($_SESSION['lance-sucesso']);
                 }
-            
+
+                if (isset($_SESSION['leilao-restaurado'])) {
+                    ?>
+                    <div class="mensagem-sucesso" id="mensagem-sucesso">
+                        <?=$_SESSION['leilao-restaurado']?>
+                    </div>
+                        <script>
+                            // Oculta a mensagem após 4 segundos
+                            setTimeout(function() {
+                                const msg = document.getElementById('mensagem-sucesso');
+                                if (msg) {
+                                    msg.style.transition = 'opacity 0.5s ease';
+                                    msg.style.opacity = '0';
+                                    setTimeout(() => msg.remove(), 500); // Remove do DOM após o fade-out
+                                }
+                            }, 4000);
+                        </script>
+                    <?php
+                    unset($_SESSION['leilao-restaurado']);
+                }
+                
+                if (isset($_SESSION['leilao-excluido'])) {
+                    ?>
+                    <div class="mensagem-sucesso" id="mensagem-sucesso">
+                        <?=$_SESSION['leilao-excluido']?>
+                    </div>
+                        <script>
+                            // Oculta a mensagem após 4 segundos
+                            setTimeout(function() {
+                                const msg = document.getElementById('mensagem-sucesso');
+                                if (msg) {
+                                    msg.style.transition = 'opacity 0.5s ease';
+                                    msg.style.opacity = '0';
+                                    setTimeout(() => msg.remove(), 500); // Remove do DOM após o fade-out
+                                }
+                            }, 4000);
+                        </script>
+                    <?php
+                    unset($_SESSION['leilao-excluido']);
+                }
             ?>
            
 
@@ -136,145 +221,183 @@
                 <?php 
                 
                     $stmt = $conn->prepare(
-                        "SELECT l.TITULO AS TITULO, DATE_FORMAT(l.DATA_INICIO, '%Y-%m-%d') AS DATA_INICIO, DATE_FORMAT(l.DATA_FINAL, '%Y-%m-%d') AS DATA_FINAL, l.NUMERO_PARACAS AS PRACAS, l.REDUCAO_PRACA AS REDUCAO, l.VALOR_INCREMENTO AS INCREMENTO, p.FOTO AS FOTO, l.DIFERENCA_PRACA AS DIFERENCA_PRACAS, l.ID AS ID_LEILAO, l.DESCRICAO AS DESCRICAO, u.NOME AS NOME_LEILOEIRO, u.CIDADE AS LOCALIDADE, p.LANCE_INICIAL AS LANCE_INICIAL, p.ID AS ID_PRODUTO, p.STATUS_PRODUTO AS STATUS_PRODUTO FROM leilao AS l
+                        "SELECT l.TITULO AS TITULO, DATE_FORMAT(l.DATA_INICIO, '%Y-%m-%d') AS DATA_INICIO, DATE_FORMAT(l.DATA_FINAL, '%Y-%m-%d') AS DATA_FINAL, l.NUMERO_PARACAS AS PRACAS, l.REDUCAO_PRACA AS REDUCAO, l.VALOR_INCREMENTO AS INCREMENTO, p.FOTO AS FOTO, l.DIFERENCA_PRACA AS DIFERENCA_PRACAS, l.ID AS ID_LEILAO, l.DESCRICAO AS DESCRICAO, u.NOME AS NOME_LEILOEIRO, u.CIDADE AS LOCALIDADE, p.LANCE_INICIAL AS LANCE_INICIAL, p.ID AS ID_PRODUTO, p.STATUS_PRODUTO AS STATUS_PRODUTO, u.ID AS ID_USER FROM leilao AS l
 
                         INNER JOIN produto AS p ON l.ID_PRODUTO = p.ID
                         INNER JOIN usuario AS u ON p.ID_USUARIO = u.ID
+                        -- INNER JOIN lancamento AS la ON la.ID_PRODUTO = p.ID
+                        -- la.VALOR AS ULTIMO_LANCE ,
 
-                        WHERE p.STATUS_PRODUTO = 2 or p.STATUS_PRODUTO = 4;
+                        WHERE (p.STATUS_PRODUTO = 2 or p.STATUS_PRODUTO = 4);
                     ");
                     $stmt->execute();
                     $result = $stmt->get_result();
                     $stmt->close();
 
-                    while ($row = $result->fetch_array()) {
-                        $id_produto = $row['ID_PRODUTO'];
-                        $id_leilao = $row['ID_LEILAO'];
-                        $titulo = htmlspecialchars($row['TITULO']);
-                        $data_inicio = $row['DATA_INICIO'];
-                        $data_final = $row['DATA_FINAL'];
-                        $diferenca_dias = $row['DIFERENCA_PRACAS'];
-                        $numero_pracas = $row['PRACAS'];
-                        $reducao_pracas = $row['REDUCAO'];
-                        $lance_inicial = number_format($row['LANCE_INICIAL'],2 , ',', '.');
-                        $valor_incremento = number_format($row['INCREMENTO'],2 ,',', '.');
-                        $foto = $row['FOTO'];
-                        $descricao = htmlspecialchars($row['DESCRICAO']);
-                        $nome_leiloeiro = htmlspecialchars($row['NOME_LEILOEIRO']);
-                        $localidade = htmlspecialchars($row['LOCALIDADE']);
-                        $status_produto = $row['STATUS_PRODUTO'];
-                        $ultimo_lance = '-';
+                    if ($result->num_rows === 0) {
+                        echo '
+                        <div class="sem-leilao">
+                            <p><i class="material-icons">gavel</i> Não há leilões em andamento no momento</p>
+                        </div>
 
-                        $data_inicio_1a_praca = new DateTime($data_inicio);
-                        $data_fim_1a_praca = new DateTime($data_final);
-
-                        $diferenca = $data_inicio_1a_praca->diff($data_fim_1a_praca);
-
-                        // Soma os dias ao fim da 1ª praça
-                        $data_inicio_2a_praca = clone $data_fim_1a_praca;
-                        $data_inicio_2a_praca->modify("+$diferenca_dias days");
-
-                        $data_fim_2a_praca = clone $data_inicio_2a_praca;
-                        $data_fim_2a_praca->modify("+$diferenca->days days");
-
-                        $desconto = number_format((float)$lance_inicial - ((float)$lance_inicial * ((float)$reducao_pracas)/100.0), 2, ',', '.');
-
-                        if ($status_produto == 4) {
-                            $stmt_select = $conn->prepare(
-                                "SELECT VALOR FROM lancamento
-                                 WHERE ID_PRODUTO = ? AND ID_LEILAO = ?; 
-                            ");
-                            $stmt_select->bind_param("ii", $id_produto, $id_leilao);
-                            $stmt_select->execute();
-                            $result_select = $stmt_select->get_result();
-                            $stmt_select->close();
-
-                            while ($row_select = $result_select->fetch_assoc()) {
-                                $ultimo_lance = number_format($row_select['VALOR'], 2, ',', '.');
+                        ';
+                    } else {
+                        while ($row = $result->fetch_array()) {
+                            $id_produto = $row['ID_PRODUTO'];
+                            $id_user = $row['ID_USER'];
+                            $id_leilao = $row['ID_LEILAO'];
+                            $titulo = htmlspecialchars($row['TITULO']);
+                            $data_inicio = $row['DATA_INICIO'];
+                            // $ultimo_lance = $row['ULTIMO_LANCE'];
+                            $data_final = $row['DATA_FINAL'];
+                            $diferenca_dias = $row['DIFERENCA_PRACAS'];
+                            $numero_pracas = $row['PRACAS'];
+                            $reducao_pracas = $row['REDUCAO'];
+                            $lance_inicial = number_format($row['LANCE_INICIAL'],2 , ',', '.');
+                            $valor_incremento = number_format($row['INCREMENTO'],2 ,',', '.');
+                            $foto = $row['FOTO'];
+                            $descricao = htmlspecialchars($row['DESCRICAO']);
+                            $nome_leiloeiro = htmlspecialchars($row['NOME_LEILOEIRO']);
+                            $localidade = htmlspecialchars($row['LOCALIDADE']);
+                            $status_produto = $row['STATUS_PRODUTO'];
+                            $ultimo_lance_aparece = '-';
+    
+                            $data_inicio_1a_praca = new DateTime($data_inicio);
+                            $data_fim_1a_praca = new DateTime($data_final);
+    
+                            $diferenca = $data_inicio_1a_praca->diff($data_fim_1a_praca);
+    
+                            // Soma os dias ao fim da 1ª praça
+                            $data_inicio_2a_praca = clone $data_fim_1a_praca;
+                            $data_inicio_2a_praca->modify("+$diferenca_dias days");
+    
+                            $data_fim_2a_praca = clone $data_inicio_2a_praca;
+                            $data_fim_2a_praca->modify("+$diferenca->days days");
+    
+                            $desconto = number_format((float)$lance_inicial - ((float)$lance_inicial * ((float)$reducao_pracas)/100.0), 2, ',', '.');
+    
+                            if ($status_produto == 4) {
+                                $stmt_select = $conn->prepare(
+                                    "SELECT VALOR FROM lancamento
+                                     WHERE ID_PRODUTO = ? AND ID_LEILAO = ?; 
+                                ");
+                                $stmt_select->bind_param("ii", $id_produto, $id_leilao);
+                                $stmt_select->execute();
+                                $result_select = $stmt_select->get_result();
+                                $stmt_select->close();
+    
+                                while ($row_select = $result_select->fetch_assoc()) {
+                                    $ultimo_lance_aparece = number_format($row_select['VALOR'], 2, ',', '.');
+                                }
+                            }
+    
+                            if ($id_user !== $id_usuario) {
+                                $botao = '
+                                    <a class="cat-dar-lan" href="tela-pagamento-adm.php?id='. $id_produto .'">Dar lance</a>
+                                    <a style="" class="pause-button edit-button" href="editar-leilao-adm.php?id='. $id_produto .'">
+                                        <img src="css/svg/edit.svg" alt="">
+                                    </a>
+    
+                                    <a class="pause-button" href="suspender-leilao.php?id='. $id_produto .'">
+                                        <img src="css/svg/pause.svg" alt="">
+                                    </a>
+    
+                                    <a class="pause-button delete-button" href="deletar-leilao.php?id='. $id_produto .'">
+                                        <img src="css/svg/garbage.svg" alt="">
+                                    </a>
+                                ';
+                            } else {
+                                $botao = '
+                                    <a class="em-leilao" href="#" style="background-color:grey; border-color: black; color: black
+                                    ; height: 35px">Em leilão</a>
+                                    <a style="" class="pause-button edit-button" href="editar-leilao-adm.php?id='. $id_produto .'">
+                                        <img src="css/svg/edit.svg" alt="">
+                                    </a>
+    
+                                    <a class="pause-button" href="suspender-leilao.php?id='. $id_produto .'">
+                                        <img src="css/svg/pause.svg" alt="">
+                                    </a>
+    
+                                    <a class="pause-button delete-button" href="deletar-leilao.php?id='. $id_produto .'">
+                                        <img src="css/svg/garbage.svg" alt="">
+                                    </a>
+                                ';
+                            }
+                            
+                            if ($numero_pracas == 2) {
+                                echo '
+                                
+                                <div class="card">
+                                    <div class="inner-card">
+                                        <figure>
+                                            <img src="' . $foto . '" alt="">
+                                        </figure>
+                                        <h3>'. $titulo .'</h3>
+                                        <div class="card-informations-1">
+                                            <div class="card-info-1">
+                                                <h4>1ª Praça</h4>
+                                                <p><span>Início:</span> '.$data_inicio_1a_praca->format('d/m/Y').'</p>
+                                                <p><span>Fim:</span> '.$data_fim_1a_praca->format('d/m/Y').'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '.$lance_inicial.'</p>
+                                                <p><span>Ultimo lance:</span> R$ '.  $ultimo_lance_aparece .' </p>
+                                            </div>
+                                        </div>
+                                        <div class="card-informations-row"></div>
+                                        <div class="card-informations-2">
+                                            <div class="card-info-1">
+                                                <h4>2ª Praça</h4>
+                                                <p><span>Início:</span> '. $data_inicio_2a_praca->format('d/m/Y') .'</p>
+                                                <p><span>Fim:</span> '. $data_fim_2a_praca->format('d/m/Y') .'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '.$desconto.'</p>
+                                                <p><span>Ultimo lance:</span> R$ - </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="dar-lance">'. $botao .'</div>
+                                </div>
+                            
+                                
+                                ';
+                            } else {
+                                    
+                                echo '
+                                
+                                <div class="card">
+                                    <div class="inner-card">
+                                        <figure>
+                                            <img src="'.$foto.'" alt="">
+                                        </figure>
+                                        <h3>'.$titulo.'</h3>
+                                        <div class="card-informations-1">
+                                            <div class="card-info-1">
+                                                <h4>1ª Praça</h4>
+                                                <p><span>Início:</span> '. $data_inicio_1a_praca->format('d/m/Y') .'</p>
+                                                <p><span>Fim:</span> '. $data_fim_1a_praca->format('d/m/Y') .'</p>
+                                            </div>
+                                            <div class="card-info-2">
+                                                <p class="inicial-lance-padding-top">.</p>
+                                                <p><span>Valor inicial:</span> R$ '. $lance_inicial .'</p>
+                                                <p><span>Ultimo lance:</span> R$ '.  $ultimo_lance_aparece .'</p>
+                                            </div>
+                                        </div>
+                                        <div class="card-informations-row"></div>
+                                    </div>
+                                    <div class="dar-lance">'. $botao .'</div>
+                                </div>
+                            
+                                
+                                ';
+    
                             }
                         }
-                        
-                        if ($numero_pracas == 2) {
-                            echo '
-                            
-                            <div class="card">
-                                <div class="inner-card">
-                                    <figure>
-                                        <img src="' . $foto . '" alt="">
-                                    </figure>
-                                    <h3>'. $titulo .'</h3>
-                                    <div class="card-informations-1">
-                                        <div class="card-info-1">
-                                            <h4>1ª Praça</h4>
-                                            <p><span>Início:</span> '.$data_inicio_1a_praca->format('d/m/Y').'</p>
-                                            <p><span>Fim:</span> '.$data_fim_1a_praca->format('d/m/Y').'</p>
-                                        </div>
-                                        <div class="card-info-2">
-                                            <p class="inicial-lance-padding-top">.</p>
-                                            <p><span>Valor inicial:</span> R$ '.$lance_inicial.'</p>
-                                            <p><span>Ultimo lance:</span> R$ '. $ultimo_lance .' </p>
-                                        </div>
-                                    </div>
-                                    <div class="card-informations-row"></div>
-                                    <div class="card-informations-2">
-                                        <div class="card-info-1">
-                                            <h4>2ª Praça</h4>
-                                            <p><span>Início:</span> '. $data_inicio_2a_praca->format('d/m/Y') .'</p>
-                                            <p><span>Fim:</span> '. $data_fim_2a_praca->format('d/m/Y') .'</p>
-                                        </div>
-                                        <div class="card-info-2">
-                                            <p class="inicial-lance-padding-top">.</p>
-                                            <p><span>Valor inicial:</span> R$ '.$desconto.'</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="dar-lance">
-                                    <a href="tela-pagamento-adm.php?id='. $id_produto .'">Dar lance</a>
-                                    <button class="view">
-                                        <img src="css/svg/visibility.svg" alt="">
-                                    </button>
-                                </div>
-                            </div>
-                        
-                            
-                            ';
-                        } else {
-                                
-                            echo '
-                            
-                            <div class="card">
-                                <div class="inner-card">
-                                    <figure>
-                                        <img src="'.$foto.'" alt="">
-                                    </figure>
-                                    <h3>'.$titulo.'</h3>
-                                    <div class="card-informations-1">
-                                        <div class="card-info-1">
-                                            <h4>1ª Praça</h4>
-                                            <p><span>Início:</span> '. $data_inicio_1a_praca->format('d/m/Y') .'</p>
-                                            <p><span>Fim:</span> '. $data_fim_1a_praca->format('d/m/Y') .'</p>
-                                        </div>
-                                        <div class="card-info-2">
-                                            <p class="inicial-lance-padding-top">.</p>
-                                            <p><span>Valor inicial:</span> R$ '. $lance_inicial .'</p>
-                                            <p><span>Ultimo lance:</span> R$ '. $ultimo_lance .'</p>
-                                        </div>
-                                    </div>
-                                    <div class="card-informations-row"></div>
-                                </div>
-                                <div class="dar-lance">
-                                    <a href="tela-pagamento-adm.php?id='. $id_produto .'">Dar lance</a>
-                                    <button class="view">
-                                        <img src="css/svg/visibility.svg" alt="">
-                                    </button>
-                                </div>
-                            </div>
-                        
-                            
-                            ';
-
-                        }
                     }
+
                 
                 ?>
             </div>
@@ -282,7 +405,42 @@
     </main>
 </body>
 </html>
-                <!-- <div class="card">
+
+<!--
+
+                               <div id="modalLogout1" class="modal">
+                                    <div class="modal-content">
+                                        <p>Tem certeza que deseja suspender esse leilão?</p>
+                                        <button id="confirmarSair1" class="confirmar-sair1">Sim</button>
+                                        <button id="cancelarSair1" class="cancelar-sair1">Cancelar</button>
+                                    </div>
+                                </div>
+
+                                <script>
+                                    let leilaoId = null;
+
+                                    document.querySelectorAll(".pause-button").forEach(button => {
+                                        button.addEventListener("click", function(e) {
+                                            e.preventDefault();
+                                            leilaoId = this.getAttribute("data-id");
+                                            document.getElementById("modalLogout1").style.display = "flex";
+                                        });
+                                    });
+
+                                    // Cancelar
+                                    document.getElementById("cancelarSair1").addEventListener("click", function() {
+                                        document.getElementById("modalLogout1").style.display = "none";
+                                    });
+
+                                    // Confirmar
+                                    document.getElementById("confirmarSair1").addEventListener("click", function() {
+                                        if (leilaoId) {
+                                            window.location.href = "suspender-leilao.php?id=" + leilaoId;
+                                        }
+                                    });
+                                </script>
+
+                 <div class="card">
                     <div class="inner-card">
                         <figure>
                             <img src="https://kawasaki.m3parts.com.br/arquivos/1705004947_24ex400l_44sgn1drf3cg_a.jpg" alt="">

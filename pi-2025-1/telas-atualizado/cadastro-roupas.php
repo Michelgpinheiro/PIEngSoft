@@ -69,6 +69,13 @@
                 }
             } 
 
+            $tipo = "Produto Cadastrado";
+
+            $stmt_movimentacao = $conn->prepare("INSERT INTO movimentacao (ID_USUARIO, TIPO_MOVIMENTACAO, VALOR, NOME_PRODUTO) VALUES (?, ?, ?, ?)");
+            $stmt_movimentacao->bind_param("isds", $_SESSION['id-usuario'], $tipo, $lance_inicial, $nome);
+            $stmt_movimentacao->execute();
+            $stmt_movimentacao->close();
+
             $_SESSION['cadastro-sucesso'] = "<p><i class='material-icons'>check_circle</i> Cadastro de produto realizado com sucesso</p>";
 
             unset($_SESSION['old']);
@@ -224,7 +231,16 @@
                                 </div>
                                 <div class="quantidade">
                                     <label for="tamanho">Tamanho</label>
-                                    <input type="text" name="tamanho" id="tamanho" value="<?=$_SESSION['old']['tamanho'] ?? ''?>" required>
+                                    <!-- <input type="text" name="tamanho" id="tamanho" value="<?=$_SESSION['old']['tamanho'] ?? ''?>" required> -->
+                                    <select name="dimensoes" id="condicao-select" required>
+                                        <option value="" <?=!isset($_SESSION['old']['dimensoes']) ? 'selected' : ''?> disabled></option>
+                                        <option value="PP (Extra Pequeno)" <?= ($_SESSION['old']['dimensoes'] ?? '') === 'PP (Extra Pequeno)' ? 'selected' : '' ?>>PP (Extra Pequeno)</option>
+                                        <option value="P (Pequeno)" <?= ($_SESSION['old']['dimensoes'] ?? '') === 'P (Pequeno)' ? 'selected' : '' ?>>P (Pequeno)</option>
+                                        <option value="M (Médio)" <?= ($_SESSION['old']['dimensoes'] ?? '') === 'M (Médio)' ? 'selected' : '' ?>>M (Médio)</option>
+                                        <option value="G (Grande)" <?= ($_SESSION['old']['dimensoes'] ?? '') === 'G (Grande)' ? 'selected' : '' ?>>G (Grande)</option>
+                                        <option value="GG (Extra Grande)" <?= ($_SESSION['old']['dimensoes'] ?? '') === 'GG (Extra Grande)' ? 'selected' : '' ?>>GG (Extra Grande)</option>
+                                        <option value="EX/XG (Extra Extra Grande)" <?= ($_SESSION['old']['dimensoes'] ?? '') === 'EX/XG (Extra Extra Grande)' ? 'selected' : '' ?>>EX/XG (Extra Extra Grande)</option>
+                                    </select>
                                 </div>
                                 <div class="quantidade">
                                     <label for="cor">Cor</label>
