@@ -405,7 +405,7 @@
             </section>
             <section class="produto-info">
                 <div class="descricao">
-                    <p><span>Descrição:</span><?=$descricao?></p>
+                    <p style="overflow-x: auto; width: 700px;"><span>Descrição:</span><?=$descricao?></p>
                     <br>
                     <p style="display: flex; align-items: center; gap: 5px; color: #5e2a1e;"><i class="material-icons">info</i><span>Informações</span></p>
                     <br>

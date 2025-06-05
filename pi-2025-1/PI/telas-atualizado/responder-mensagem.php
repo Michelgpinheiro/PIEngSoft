@@ -23,7 +23,7 @@
         $id_mensagem = $_GET['id'];
         $_SESSION['id-mensagem'] = $id_mensagem;
 
-        $stmt = $conn->prepare("SELECT m.MENSAGEM AS MENSAGEM, u.NOME AS NOME_USUARIO, u.NOME_FANTASIA AS FANTASIA_USUARIO FROM mensagem AS m INNER JOIN usuario AS u ON u.ID = m.ID_USUARIO WHERE m.ID = ?");
+        $stmt = $conn->prepare("SELECT m.MENSAGEM AS MENSAGEM, MSG_SUSPENSAO AS M_SUSPENDIDA, u.NOME AS NOME_USUARIO, u.NOME_FANTASIA AS FANTASIA_USUARIO FROM mensagem AS m INNER JOIN usuario AS u ON u.ID = m.ID_USUARIO WHERE m.ID = ?");
         $stmt->bind_param("i", $id_mensagem);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -33,6 +33,7 @@
             $mensagem = $row['MENSAGEM'];
             $nome = $row['NOME_USUARIO'];
             $nome_fantasia = $row['FANTASIA_USUARIO'];
+            $mensagem_suspendido = $row['M_SUSPENDIDA'];
         }
 
         if (!empty($nome_fantasia)) {
@@ -157,7 +158,11 @@
                 </a>
                 <h2 style="text-align: center; margin-top: -40px; margin-bottom: 30px;">Responder Usuário</h2>
                 <div class="descricao-mensagem-enviar">
+                <?php if ($mensagem_suspendido): ?>
+                    <label style="font-size: 20px; font-style: italic;">~ <?=$nome?> (Usuário Suspenso)</label>
+                <?php else: ?>
                     <label style="font-size: 20px; font-style: italic;">~ <?=$nome?></label>
+                <?php endif; ?>
                     <p style="font-size: 16px; overflow-x: auto; margin-top: 10px; width: 715px;"><span>Mensagem: </span><?=$mensagem?></p>
                     <div class="mensagem">
                         <?php 

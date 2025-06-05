@@ -33,6 +33,13 @@
         // 3. Definir motivo se for suspender, ou NULL se for reativar
         $motivo = ($novo_status == 0) ? $motivo_suspensao_conta : null;
 
+        if ($novo_status) {
+            $stmt = $conn->prepare("DELETE FROM mensagem WHERE MSG_SUSPENSAO = 1 AND ID_USUARIO = ?");
+            $stmt->bind_param("i", $id_pra_ususpender);
+            $stmt->execute();
+            $stmt->close();
+        }
+
         // 4. Executar o update
         $stmt = $conn->prepare("UPDATE usuario SET ST_USUARIO = ?, MOTIVO_SUSPENSAO_CONTA = ? WHERE ID = ?");
         $stmt->bind_param("isi", $novo_status, $motivo, $id_pra_ususpender);

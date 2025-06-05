@@ -203,7 +203,7 @@
                         -- INNER JOIN lancamento AS la ON la.ID_PRODUTO = p.ID
                         -- la.VALOR AS ULTIMO_LANCE ,
 
-                        WHERE (p.STATUS_PRODUTO = 6);
+                        WHERE p.STATUS_PRODUTO = 6 AND u.ID <> $id_usuario;
                     ");
                     $stmt->execute();
                     $result = $stmt->get_result();

@@ -124,7 +124,7 @@
                 <div class="row row-produtos"></div>
                 <?php 
 
-                if (isset($_SESSION['cadastro-sucesso'])) {
+                    if (isset($_SESSION['cadastro-sucesso'])) {
                         ?>
                         <div class="mensagem-sucesso" id="mensagem-sucesso" style="margin-top: 10px;">
                             <?=$_SESSION['cadastro-sucesso']?>
@@ -257,9 +257,43 @@
                             $botao = '<div style="margin-bottom: -30px;" class="dar-lance leiloar">
                             <a href="#" onclick="return false">Em leilão</a></div>
                             
-                            <a style="display: inline-block;" class="pause-button delete-button" href="tela-produtos.php?ex='. $id_produto .'">
+                            <a style="display: inline-block;" class="pause-button delete-button btn-excluir-' . $id_unico . '" href="#">
                                 <img style="margin-top: -100px;" src="css/svg/garbage.svg" alt="">
                             </a>
+
+                            <div id="modalExcluir-' . $id_unico . '" class="modal">
+                                <div class="modal-content">
+                                    <p>Tem certeza de que deseja excluir este produto?</p>
+                                    <button style="
+                                        background-color: #BD6C34;
+                                        color: #FFD980;
+                                        border: 2px solid #FFD980;
+                                        font-size: 16px;
+                                        width: 100px;
+                                    " id="confirmarExcluir-' . $id_unico . '" class="confirmar-sair">Sim</button>
+                                    <button style="
+                                        background-color: #FFD980;
+                                        color: #BD6C34;
+                                        border: 2px solid #BD6C34;
+                                        font-size: 16px;
+                                    " id="cancelarExcluir-' . $id_unico . '" class="cancelar-sair">Cancelar</button>
+                                </div>
+                            </div>
+
+                            <script>
+                                document.querySelector(".btn-excluir-' . $id_unico . '").addEventListener("click", function(e) {
+                                    e.preventDefault();
+                                    document.getElementById("modalExcluir-' . $id_unico . '").style.display = "flex";
+                                });
+
+                                document.getElementById("cancelarExcluir-' . $id_unico . '").addEventListener("click", function() {
+                                    document.getElementById("modalExcluir-' . $id_unico . '").style.display = "none";
+                                });
+
+                                document.getElementById("confirmarExcluir-' . $id_unico . '").addEventListener("click", function() {
+                                    window.location.href = "tela-produtos.php?ex=' . $id_unico . '";
+                                });
+                            </script>
                             
                             ';
                             break;
@@ -278,7 +312,7 @@
                                 <div class="dar-lance leiloar" style="position: static;">
                                     <a style="background-color: darkred; margin-bottom: -20px; border-color: red; color: red;" href="#" id="btn-dar-lance-'.$id_unico.'">Recusado</a>
 
-                                    <a style="display: inline-block;" class="pause-button delete-button" href="tela-produtos.php?ex='. $id_produto .'">
+                                    <a style="display: inline-block;" class="pause-button delete-button btn-excluir-' . $id_unico . '" href="#">
                                         <img style="margin-top: -100px;" src="css/svg/garbage.svg" alt="">
                                     </a>
 
@@ -306,8 +340,43 @@
                                             popup.style.display = "none";
                                         });
                                     });
-                                </script> ';
-                            
+                                </script> 
+                                
+                                <div id="modalExcluir-' . $id_unico . '" class="modal">
+                                    <div class="modal-content">
+                                        <p>Tem certeza de que deseja excluir este produto?</p>
+                                        <button style="
+                                            background-color: #BD6C34;
+                                            color: #FFD980;
+                                            border: 2px solid #FFD980;
+                                            font-size: 16px;
+                                            width: 100px;
+                                        " id="confirmarExcluir-' . $id_unico . '" class="confirmar-sair">Sim</button>
+                                        <button style="
+                                            background-color: #FFD980;
+                                            color: #BD6C34;
+                                            border: 2px solid #BD6C34;
+                                            font-size: 16px;
+                                        " id="cancelarExcluir-' . $id_unico . '" class="cancelar-sair">Cancelar</button>
+                                    </div>
+                                </div>
+
+                                <script>
+                                    document.querySelector(".btn-excluir-' . $id_unico . '").addEventListener("click", function(e) {
+                                        e.preventDefault();
+                                        document.getElementById("modalExcluir-' . $id_unico . '").style.display = "flex";
+                                    });
+
+                                    document.getElementById("cancelarExcluir-' . $id_unico . '").addEventListener("click", function() {
+                                        document.getElementById("modalExcluir-' . $id_unico . '").style.display = "none";
+                                    });
+
+                                    document.getElementById("confirmarExcluir-' . $id_unico . '").addEventListener("click", function() {
+                                        window.location.href = "tela-produtos.php?ex=' . $id_unico . '";
+                                    });
+                                </script>
+
+                                ';
                             
                             break;
                         } case 4: {
@@ -389,7 +458,7 @@
                                 <div class="dar-lance leiloar" style="position: static; margin-bottom: -30px;">
                                     <a style="background-color: brown; border-color: orange; margin-bottom: -20px; color: orange;" href="#" id="btn-dar-lance-'.$id_unico.'">Suspenso</a>
 
-                                    <a style="display: inline-block;" class="pause-button delete-button" href="tela-produtos.php?ex='. $id_produto .'">
+                                    <a style="display: inline-block;" class="pause-button delete-button btn-excluir-' . $id_unico . '" href="#">
                                         <img style="margin-top: -100px;" src="css/svg/garbage.svg" alt="">
                                     </a>
 
@@ -417,7 +486,43 @@
                                             popup.style.display = "none";
                                         });
                                     });
-                                </script> ';
+                                </script> 
+                                
+                                <div id="modalExcluir-' . $id_unico . '" class="modal">
+                                    <div class="modal-content">
+                                        <p>Tem certeza de que deseja excluir este produto?</p>
+                                        <button style="
+                                            background-color: #BD6C34;
+                                            color: #FFD980;
+                                            border: 2px solid #FFD980;
+                                            font-size: 16px;
+                                            width: 100px;
+                                        " id="confirmarExcluir-' . $id_unico . '" class="confirmar-sair">Sim</button>
+                                        <button style="
+                                            background-color: #FFD980;
+                                            color: #BD6C34;
+                                            border: 2px solid #BD6C34;
+                                            font-size: 16px;
+                                        " id="cancelarExcluir-' . $id_unico . '" class="cancelar-sair">Cancelar</button>
+                                    </div>
+                                </div>
+
+                                <script>
+                                    document.querySelector(".btn-excluir-' . $id_unico . '").addEventListener("click", function(e) {
+                                        e.preventDefault();
+                                        document.getElementById("modalExcluir-' . $id_unico . '").style.display = "flex";
+                                    });
+
+                                    document.getElementById("cancelarExcluir-' . $id_unico . '").addEventListener("click", function() {
+                                        document.getElementById("modalExcluir-' . $id_unico . '").style.display = "none";
+                                    });
+
+                                    document.getElementById("confirmarExcluir-' . $id_unico . '").addEventListener("click", function() {
+                                        window.location.href = "tela-produtos.php?ex=' . $id_unico . '";
+                                    });
+                                </script>
+                                
+                                ';
 
                             break;
                             
@@ -438,7 +543,7 @@
                                 <div class="dar-lance leiloar" style="position: static;">
                                     <a style="background-color: red; margin-bottom: -20px; border-color: darkred; color: darkred;" href="#" id="btn-dar-lance-'.$id_unico.'">Excluido</a>
 
-                                    <a style="display: inline-block;" class="pause-button delete-button" href="tela-produtos.php?ex='. $id_produto .'">
+                                    <a style="display: inline-block;" class="pause-button delete-button btn-excluir-' . $id_unico . '" href="#">
                                         <img style="margin-top: -100px;" src="css/svg/garbage.svg" alt="">
                                     </a>
 
@@ -466,7 +571,43 @@
                                             popup.style.display = "none";
                                         });
                                     });
-                                </script> ';
+                                </script> 
+                                
+                                <div id="modalExcluir-' . $id_unico . '" class="modal">
+                                    <div class="modal-content">
+                                        <p>Tem certeza de que deseja excluir este produto?</p>
+                                        <button style="
+                                            background-color: #BD6C34;
+                                            color: #FFD980;
+                                            border: 2px solid #FFD980;
+                                            font-size: 16px;
+                                            width: 100px;
+                                        " id="confirmarExcluir-' . $id_unico . '" class="confirmar-sair">Sim</button>
+                                        <button style="
+                                            background-color: #FFD980;
+                                            color: #BD6C34;
+                                            border: 2px solid #BD6C34;
+                                            font-size: 16px;
+                                        " id="cancelarExcluir-' . $id_unico . '" class="cancelar-sair">Cancelar</button>
+                                    </div>
+                                </div>
+
+                                <script>
+                                    document.querySelector(".btn-excluir-' . $id_unico . '").addEventListener("click", function(e) {
+                                        e.preventDefault();
+                                        document.getElementById("modalExcluir-' . $id_unico . '").style.display = "flex";
+                                    });
+
+                                    document.getElementById("cancelarExcluir-' . $id_unico . '").addEventListener("click", function() {
+                                        document.getElementById("modalExcluir-' . $id_unico . '").style.display = "none";
+                                    });
+
+                                    document.getElementById("confirmarExcluir-' . $id_unico . '").addEventListener("click", function() {
+                                        window.location.href = "tela-produtos.php?ex=' . $id_unico . '";
+                                    });
+                                </script>
+
+                                ';
 
                             break;
                         } default: {
