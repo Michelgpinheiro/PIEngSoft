@@ -32,7 +32,7 @@
         
         $mensagem = trim($_POST['mensagem']);
     
-        $stmt = $conn->prepare("INSERT INTO mensagem (ID_USUARIO, MENSAGEM, VERIFICADO, VISTO, MSG_SUSPENSO) VALUES (?, ?, 0, 0, 0)");
+        $stmt = $conn->prepare("INSERT INTO mensagem (ID_USUARIO, MENSAGEM, VERIFICADO, VISTO, MSG_SUSPENSAO) VALUES (?, ?, 0, 0, 0)");
         $stmt->bind_param("is", $id_usuario ,$mensagem);
         $stmt->execute();
         $stmt->close();
